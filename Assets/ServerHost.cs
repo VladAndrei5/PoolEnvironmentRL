@@ -1,80 +1,98 @@
 using System;
+using System.Text;
 using System.Net;
 using System.Net.Sockets;
-using System.Text;
-using System.Threading.Tasks;
-
+using System.Threading;
 using UnityEngine;
 
-public class SocketServer : MonoBehaviour
+public class ServerHost : MonoBehaviour
 {
     public int serverPort = 12345;
+    public Environment environment; // Reference to the Environment GameObject
 
-    private TcpListener listener;
-    private TcpClient client;
-    private NetworkStream stream;
+    TcpListener server = null;
+    TcpClient client = null;
+    NetworkStream stream = null;
+    Thread thread;
 
-    void Start()
+    private void Start()
     {
-        
-        try
-        {
-            listener = new TcpListener(IPAddress.Any, serverPort);
-            listener.Start();
-            Debug.Log("Server started, waiting for connections...");
-            
-            // Accept client connection
-            client = listener.AcceptTcpClient();
-            stream = client.GetStream();
+        thread = new Thread(new ThreadStart(SetupServer));
+        thread.Start();
+    }
 
-            // Example: Send data to Python client
-            //SendData("Hello from Unity!");
-
-        }
-        catch (Exception e)
+    private void Update()
+    {
+        // test sentting hello
+        if (Input.GetKeyDown(KeyCode.Space))
         {
-            Debug.Log($"Server error: {e}");
+            SendMessageToClient("Hello");
         }
     }
 
-    public void SendData(string data)
+    private void SetupServer()
     {
         try
         {
-            byte[] bytes = System.Text.Encoding.UTF8.GetBytes(data);
-            stream.Write(bytes, 0, bytes.Length);
-        }
-        catch (Exception e)
-        {
-            Debug.Log($"Error sending data: {e}");
-        }
-    }
+            server = new TcpListener(IPAddress.Any, serverPort);
+            server.Start();
+            Debug.Log("Server started.");
 
-    async Task HandleClientAsync(TcpClient client)
-    {
-        try
-        {
-            using (NetworkStream stream = client.GetStream())
+            byte[] buffer = new byte[1024];
+            string data = null;
+
+            while (true)
             {
-                byte[] buffer = new byte[1024];
-                int bytesRead = await stream.ReadAsync(buffer, 0, buffer.Length);
-                string requestData = Encoding.UTF8.GetString(buffer, 0, bytesRead);
-                Debug.Log("Request received: " + requestData);
+                Debug.Log("Waiting for connection...");
+                client = server.AcceptTcpClient();
+                Debug.Log("Connected!");
 
-                // Example: Send response back to Python client
-                string responseData = "Hello from Unity!";
-                byte[] responseBuffer = Encoding.UTF8.GetBytes(responseData);
-                await stream.WriteAsync(responseBuffer, 0, responseBuffer.Length);
-                Debug.Log("Response sent: " + responseData);
+                data = null;
+                stream = client.GetStream();
+
+                int i;
+
+                while ((i = stream.Read(buffer, 0, buffer.Length)) != 0)
+                {
+                    data = Encoding.UTF8.GetString(buffer, 0, i);
+                    //Debug.Log("Received: " + data);
+
+                    // Parse the data
+                    string[] stringArray = data.Split(',');
+                    (float, float) action = (float.Parse(stringArray[0]), float.Parse(stringArray[1]));
+                    Debug.Log("Received action: " + action);
+
+                    // Pass the action data to the Environment GameObject
+                    environment.ProcessReceivedData(action);
+
+                    //string response = "Server response: " + data.ToString();
+                    //SendMessageToClient(message: response);
+                }
+                client.Close();
             }
         }
-        catch (Exception e)
+        catch (SocketException e)
         {
-            Debug.Log($"Error handling client: {e}");
+            Debug.Log("SocketException: " + e);
         }
         finally
         {
-            client.Close();
+            server.Stop();
         }
+    }
+
+    private void OnApplicationQuit()
+    {
+        stream.Close();
+        client.Close();
+        server.Stop();
+        thread.Abort();
+    }
+
+    public void SendMessageToClient(string message)
+    {
+        byte[] msg = Encoding.UTF8.GetBytes(message);
+        stream.Write(msg, 0, msg.Length);
+        Debug.Log("Sent: " + message);
     }
 }

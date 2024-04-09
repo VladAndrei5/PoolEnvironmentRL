@@ -65,32 +65,59 @@ public class Environment : MonoBehaviour
         yield break;
     }
 
-    void Update(){
-        if(stationaryBalls){
-            StartCoroutine(Step((angle, power)));
-            Debug.Log(currentReward);
-            currentReward = 0;
-            if(gameOver){
-                ResetEnv();
-            }
-            if(resetWhiteBall){
-                resetWhiteBall = false;
-                whiteBallControls.Reset();
-            }
-            if(changePlayer){
-                changePlayer = false;
-                if(currentPlayer == 1){
-                    playerNumbText.text = "1";
-                    playerNumbText.color = Color.red;
-                    currentPlayer = 0;
+    void Update()
+    {
+        // Check if new data has been received from the client
+        if (action != default)
+        {
+            // Process the received action
+            // TODO:use a try catch to avoid invalid receivedAction
+            if (stationaryBalls)
+            {
+                Debug.Log("Taking action.");
+                StartCoroutine(Step(action));
+                Debug.Log(currentReward);
+                currentReward = 0;
+                if (gameOver)
+                {
+                    ResetEnv();
                 }
-                else{
-                    playerNumbText.text = "2";
-                    playerNumbText.color = Color.yellow;
-                    currentPlayer = 1;
+                if (resetWhiteBall)
+                {
+                    resetWhiteBall = false;
+                    whiteBallControls.Reset();
+                }
+                if (changePlayer)
+                {
+                    changePlayer = false;
+                    if (currentPlayer == 1)
+                    {
+                        playerNumbText.text = "1";
+                        playerNumbText.color = Color.red;
+                        currentPlayer = 0;
+                    }
+                    else
+                    {
+                        playerNumbText.text = "2";
+                        playerNumbText.color = Color.yellow;
+                        currentPlayer = 1;
+                    }
                 }
             }
+
+            // Reset action to default so that it's processed only once
+            action = default;
         }
+    }
+
+    // Method to process data received from the Server GameObject
+    public void ProcessReceivedData((float, float) receivedAction)
+    {
+
+        Debug.Log("ProcessReceivedData...");
+        action = receivedAction;
+
+
     }
 
     private void ResetEnv(){
