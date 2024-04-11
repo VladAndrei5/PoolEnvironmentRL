@@ -8,6 +8,7 @@ using TMPro;
 
 public class Environment : MonoBehaviour
 {
+    public ServerHost serverhost;
     public MoveWhiteBall whiteBallControls;
     private (float, float) action;
     public float angle = 0f;
@@ -70,43 +71,54 @@ public class Environment : MonoBehaviour
         // Check if new data has been received from the client
         if (action != default)
         {
-            // Process the received action
-            // TODO:use a try catch to avoid invalid receivedAction
-            if (stationaryBalls)
-            {
-                Debug.Log("Taking action.");
-                StartCoroutine(Step(action));
-                Debug.Log(currentReward);
-                currentReward = 0;
-                if (gameOver)
-                {
-                    ResetEnv();
-                }
-                if (resetWhiteBall)
-                {
-                    resetWhiteBall = false;
-                    whiteBallControls.Reset();
-                }
-                if (changePlayer)
-                {
-                    changePlayer = false;
-                    if (currentPlayer == 1)
-                    {
-                        playerNumbText.text = "1";
-                        playerNumbText.color = Color.red;
-                        currentPlayer = 0;
-                    }
-                    else
-                    {
-                        playerNumbText.text = "2";
-                        playerNumbText.color = Color.yellow;
-                        currentPlayer = 1;
-                    }
-                }
-            }
+            Debug.Log("taking action..");
+            TakeAction(action);
 
             // Reset action to default so that it's processed only once
             action = default;
+            Debug.Log("Finished the action");
+        }
+    }
+
+    public void TakeAction((float, float) _action)
+    {
+        // Process the received action
+        // TODO:use a try catch to avoid invalid receivedAction
+        if (stationaryBalls)
+        {
+            Debug.Log("Taking action.");
+            StartCoroutine(Step(_action));
+            Debug.Log("currentReward: " + currentReward);
+
+            // Send response data back to the client
+            serverhost.SendResponseDataToClient(currentReward.ToString());
+
+            //currentReward = 0;
+            if (gameOver)
+            {
+                ResetEnv();
+            }
+            if (resetWhiteBall)
+            {
+                resetWhiteBall = false;
+                whiteBallControls.Reset();
+            }
+            if (changePlayer)
+            {
+                changePlayer = false;
+                if (currentPlayer == 1)
+                {
+                    playerNumbText.text = "1";
+                    playerNumbText.color = Color.red;
+                    currentPlayer = 0;
+                }
+                else
+                {
+                    playerNumbText.text = "2";
+                    playerNumbText.color = Color.yellow;
+                    currentPlayer = 1;
+                }
+            }
         }
     }
 

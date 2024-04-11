@@ -21,15 +21,6 @@ public class ServerHost : MonoBehaviour
         thread.Start();
     }
 
-    private void Update()
-    {
-        // test sentting hello
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            SendMessageToClient("Hello");
-        }
-    }
-
     private void SetupServer()
     {
         try
@@ -55,18 +46,20 @@ public class ServerHost : MonoBehaviour
                 while ((i = stream.Read(buffer, 0, buffer.Length)) != 0)
                 {
                     data = Encoding.UTF8.GetString(buffer, 0, i);
-                    //Debug.Log("Received: " + data);
 
                     // Parse the data
                     string[] stringArray = data.Split(',');
                     (float, float) action = (float.Parse(stringArray[0]), float.Parse(stringArray[1]));
                     Debug.Log("Received action: " + action);
 
+
+                    //// Responses back to the client
+                    //string response = "Server received action: " + data.ToString();
+                    //SendResponseDataToClient(response);
+
                     // Pass the action data to the Environment GameObject
                     environment.ProcessReceivedData(action);
 
-                    //string response = "Server response: " + data.ToString();
-                    //SendMessageToClient(message: response);
                 }
                 client.Close();
             }
@@ -83,13 +76,25 @@ public class ServerHost : MonoBehaviour
 
     private void OnApplicationQuit()
     {
-        stream.Close();
-        client.Close();
-        server.Stop();
-        thread.Abort();
+        if (stream != null)
+        {
+            stream.Close();
+        }
+        if (client != null)
+        {
+            client.Close();
+        }
+        if (server != null)
+        {
+            server.Stop();
+        }
+        //if(thread != null)
+        //{
+        //    thread.Abort();
+        //}
     }
 
-    public void SendMessageToClient(string message)
+    public void SendResponseDataToClient(string message)
     {
         byte[] msg = Encoding.UTF8.GetBytes(message);
         stream.Write(msg, 0, msg.Length);
