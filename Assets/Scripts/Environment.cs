@@ -47,7 +47,7 @@ public class Environment : MonoBehaviour
     void Start(){
         //current player is Yellow
         //TODO change this
-        updatedState = true;
+        updatedState = false;
         currentPlayerColour = 1;
         ballsArray = GameObject.FindGameObjectsWithTag("Ball");
         stationaryBalls = true;
@@ -83,10 +83,11 @@ public class Environment : MonoBehaviour
         UpdateState();
         // send state, send reward, send gameOver
 
-
+        /*
         if(gameOver){
             ResetEnv();
         }
+        */
 
         yield break;
     }
@@ -98,28 +99,19 @@ public class Environment : MonoBehaviour
         if (action != default)
         {
             Debug.Log("taking action..");
-            TakeAction(action);
-
+            StartCoroutine(Step(action));
             // Reset action to default so that it's processed only once
             action = default;
             Debug.Log("Finished the action");
         }
+
+        if(IsStateUpdated()){
+            serverhost.SendResponseDataToClient(currentReward.ToString());
+        }
     }
 
-    public void TakeAction((float, float) _action)
-    {
-        // Process the received action
-        // TODO:use a try catch to avoid invalid receivedAction
-        if (updatedState)
-        {
-            Debug.Log("Taking action.");
-            StartCoroutine(Step(_action));
-            Debug.Log("currentReward: " + currentReward);
-
-            // Send response data back to the client
-            serverhost.SendResponseDataToClient( currentReward.ToString());
-
-        }
+    public bool IsStateUpdated(){
+        return updatedState;
     }
     
 
