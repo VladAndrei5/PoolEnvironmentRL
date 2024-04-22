@@ -6,6 +6,7 @@ public class MoveWhiteBall : MonoBehaviour
 {
     public Vector2 direction;
     public float initialVelocity;
+    private Vector2 whiteBallSpawnPosition = new Vector2(-5.98f, 0f);
 
     private Rigidbody2D rb;
 
@@ -14,6 +15,9 @@ public class MoveWhiteBall : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
     }
 
+    public void Reset(){
+        transform.position = whiteBallSpawnPosition;
+    }
     public static Vector2 AngleToDirection(float angle)
     {
         // Convert angle from degrees to radians
@@ -29,7 +33,7 @@ public class MoveWhiteBall : MonoBehaviour
 
     public void MoveBall(float angle, float velocity){
         Vector2 direction = AngleToDirection(angle);
-        Debug.Log(direction);
+        //Debug.Log(direction);
         Vector2 force = direction.normalized * velocity;
         rb.AddForce(force, ForceMode2D.Impulse);
     }
