@@ -25,7 +25,6 @@ public class Environment : MonoBehaviour
     public int currentState;
 
     public bool gameOver = false;
-    public bool resetWhiteBall = false;
     public bool changePlayer = false;
     public GameObject[] ballsArray;
 
@@ -53,7 +52,6 @@ public class Environment : MonoBehaviour
         ballsArray = GameObject.FindGameObjectsWithTag("Ball");
         stationaryBalls = true;
         gameOver =false;
-        resetWhiteBall = false;
         changePlayer = false;
         playerNumbText.text = "1";
         playerNumbText.color = Color.red;
@@ -93,7 +91,7 @@ public class Environment : MonoBehaviour
         yield break;
     }
     
-    /*
+    
     void Update()
     {
         // Check if new data has been received from the client
@@ -119,20 +117,21 @@ public class Environment : MonoBehaviour
             Debug.Log("currentReward: " + currentReward);
 
             // Send response data back to the client
-            serverhost.SendResponseDataToClient(state.ToString() + currentReward.ToString());
+            serverhost.SendResponseDataToClient( currentReward.ToString());
 
         }
     }
-    */
-
     
+
+    /*
     void Update(){
         if(updatedState){
             StartCoroutine(Step( (0.1f, 1f) ));
         }
     }
+    */
     
-    public void ReseWhitetBall(){
+    public void ResetWhiteBall(){
         whiteBallControls.Reset();
     }
 

@@ -38,7 +38,7 @@ public class BallScript : MonoBehaviour
                 }
                 else if(ballColour == 3){
                     env.UpdateReward(env.rewardPerSkipTurn);
-                    env.resetWhiteBall = true;
+                    env.ResetWhiteBall();
                 }
                 else if(env.currentPlayer == ballColour){
                     env.UpdateReward(env.rewardPerCorrectBall);
