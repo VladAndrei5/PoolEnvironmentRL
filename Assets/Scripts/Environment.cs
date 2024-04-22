@@ -31,7 +31,25 @@ public class Environment : MonoBehaviour
 
     public TextMeshProUGUI playerNumbText;
 
+    public float[] state;
+    public int currentPlayerColour;
+
+    public int rewardPerWrongBall = -5;
+    public int rewardPerCorrectBall = 5;
+    public int rewardPerBlackBall = -200;
+    public int rewardPerWin = 100;
+    public int rewardPerLose = -100;
+    public int rewardPerSkipTurn = -2;
+
+    public bool updatedState;
+    //!!!!!!!!!!!!!!!!!!!!
+    //0 is red , 1 is yellow, 2 is black, 3 is white
+
     void Start(){
+        //current player is Yellow
+        //TODO change this
+        updatedState = true;
+        currentPlayerColour = 1;
         ballsArray = GameObject.FindGameObjectsWithTag("Ball");
         stationaryBalls = true;
         gameOver =false;
@@ -43,6 +61,9 @@ public class Environment : MonoBehaviour
     }
 
     IEnumerator Step((float, float) action){
+        updatedState = false;
+        currentReward = -1;
+
         stationaryBalls = false;
         float randomAngleAdd = Random.Range((float)-0.03, (float)0.03);
         float randomPowerAdd = 0f;
@@ -50,6 +71,7 @@ public class Environment : MonoBehaviour
         //check if all balls are not moving
         
         while(!stationaryBalls){
+            //In this loop the reward is updated
             stationaryBalls = true;
             foreach (GameObject ball in ballsArray){
                 Rigidbody2D rb = ball.GetComponent<Rigidbody2D>();
@@ -59,13 +81,18 @@ public class Environment : MonoBehaviour
             }
             yield return null;
         }
-        //substract one reward for taking a turn
-        currentReward--;
 
-        //return reward and state
+        UpdateState();
+        // send state, send reward, send gameOver
+
+
+        if(gameOver){
+            ResetEnv();
+        }
+
         yield break;
     }
-
+    
     void Update()
     {
         // Check if new data has been received from the client
@@ -84,52 +111,111 @@ public class Environment : MonoBehaviour
     {
         // Process the received action
         // TODO:use a try catch to avoid invalid receivedAction
-        if (stationaryBalls)
+        if (updatedState)
         {
             Debug.Log("Taking action.");
             StartCoroutine(Step(_action));
             Debug.Log("currentReward: " + currentReward);
 
             // Send response data back to the client
-            serverhost.SendResponseDataToClient(currentReward.ToString());
+            serverhost.SendResponseDataToClient(state.ToString() + currentReward.ToString());
 
-            //currentReward = 0;
-            if (gameOver)
-            {
-                ResetEnv();
-            }
-            if (resetWhiteBall)
-            {
-                resetWhiteBall = false;
-                whiteBallControls.Reset();
-            }
-            if (changePlayer)
-            {
-                changePlayer = false;
-                if (currentPlayer == 1)
-                {
-                    playerNumbText.text = "1";
-                    playerNumbText.color = Color.red;
-                    currentPlayer = 0;
-                }
-                else
-                {
-                    playerNumbText.text = "2";
-                    playerNumbText.color = Color.yellow;
-                    currentPlayer = 1;
-                }
+        }
+    }
+    
+
+    /*
+    void Update(){
+        if(updatedState){
+            StartCoroutine(Step( (0.1f, 1f) ));
+        }
+    }
+    */
+
+    public void ReseWhitetBall(){
+        whiteBallControls.Reset();
+    }
+
+    public void UpdateState(){
+        Debug.Log("hERE");
+        List<float> stateList = new List<float>();
+
+        foreach (GameObject ball in ballsArray){
+            BallScript ballScript = ball.GetComponent<BallScript>();
+
+            stateList.Add(ballScript.GetPositionX());
+            stateList.Add(ballScript.GetPositionY());
+            stateList.Add((float)ballScript.GetBallColour());
+            stateList.Add((float)ballScript.GetBallActive());
+
+        }
+
+    
+
+        stateList.Add(currentPlayerColour);
+
+        state = stateList.ToArray();
+
+        updatedState = true;
+    }
+
+    public bool CheckIfRedWon(){
+        bool didWin = true;
+        foreach (GameObject ball in ballsArray){
+            BallScript ballScript = ball.GetComponent<BallScript>();
+            if(ballScript.GetBallColour() == 0 && ballScript.GetBallActive() == 1){
+                didWin = false;
+                break;
             }
         }
+
+        if(didWin && currentPlayerColour == 0){
+            UpdateReward(rewardPerWin);
+            gameOver = true;
+        }
+        else if(didWin){
+            UpdateReward(rewardPerLose);
+            gameOver = true;
+        }
+
+        return didWin;
+    }
+
+    public bool CheckIfYellowWon(){
+        bool didWin = true;
+        foreach (GameObject ball in ballsArray){
+            BallScript ballScript = ball.GetComponent<BallScript>();
+            if(ballScript.GetBallColour() == 1 && ballScript.GetBallActive() == 1){
+                didWin = false;
+                break;
+            }
+        }
+
+        if(didWin && currentPlayerColour == 1){
+            UpdateReward(rewardPerWin);
+            gameOver = true;
+        }
+        else if(didWin){
+            UpdateReward(rewardPerLose);
+            gameOver = true;
+        }
+
+        return didWin;
+    }
+
+    public void UpdateReward(int newReward){
+        currentReward = currentReward + newReward;
+    }
+
+    public void ResetReward(){
+        currentReward = 0;
     }
 
     // Method to process data received from the Server GameObject
     public void ProcessReceivedData((float, float) receivedAction)
     {
-
         Debug.Log("ProcessReceivedData...");
         action = receivedAction;
-
-
     }
 
     private void ResetEnv(){

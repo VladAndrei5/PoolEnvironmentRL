@@ -33,25 +33,50 @@ public class BallScript : MonoBehaviour
             //Give rewards if ball falls in pocket based on its colour 
             if(isActive){
                 if( ballColour == 2){
-                    env.currentReward -= 100;
+                    env.UpdateReward(env.rewardPerBlackBall);
                     env.gameOver = true;
                 }
                 else if(ballColour == 3){
-                    env.currentReward -= 10;
+                    env.UpdateReward(env.rewardPerSkipTurn);
                     env.resetWhiteBall = true;
                 }
                 else if(env.currentPlayer == ballColour){
-                    env.currentReward += 5;
+                    env.UpdateReward(env.rewardPerCorrectBall);
+                    env.CheckIfRedWon();
+                    env.CheckIfYellowWon();
                     DisableBall();
                 }
                 else if(env.currentPlayer != ballColour){
-                    env.currentReward -= 10;
-                    env.changePlayer = true;
+                    env.UpdateReward(env.rewardPerWrongBall);
+                    env.CheckIfRedWon();
+                    env.CheckIfYellowWon();
+                    //env.changePlayer = true;
                     DisableBall();
                 }
                 
             }
 
+        }
+    }
+
+    public float GetPositionX(){
+        return transform.position.x;
+    }
+
+    public float GetPositionY(){
+        return transform.position.y;
+    }
+
+    public int GetBallColour(){
+        return ballColour;
+    }
+
+    public int GetBallActive(){
+        if(isActive){
+            return 1;
+        }
+        else{
+            return 0;
         }
     }
 

@@ -16,6 +16,9 @@ public class MoveWhiteBall : MonoBehaviour
     }
 
     public void Reset(){
+        Rigidbody2D rb = GetComponent<Rigidbody2D>();
+        rb.velocity = Vector2.zero;
+        rb.angularVelocity = 0f;
         transform.position = whiteBallSpawnPosition;
     }
     public static Vector2 AngleToDirection(float angle)
