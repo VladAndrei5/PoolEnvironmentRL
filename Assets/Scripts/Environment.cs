@@ -65,6 +65,8 @@ public class Environment : MonoBehaviour
         stationaryBalls = false;
         float randomAngleAdd = Random.Range((float)-0.03, (float)0.03);
         float randomPowerAdd = 0f;
+
+        Debug.Log("taking action..");
         whiteBallControls.MoveBall(action.Item1 + randomAngleAdd, (action.Item2 + randomPowerAdd) * maxVelocity);
         //check if all balls are not moving
         
@@ -81,7 +83,11 @@ public class Environment : MonoBehaviour
         }
 
         UpdateState();
-        // send state, send reward, send gameOver
+
+        Debug.Log("Finished the action");
+
+        // Send state, send reward, send gameOver to client
+        serverhost.ParseAndSendDataToClient(state, currentReward, gameOver);
 
         /*
         if(gameOver){
@@ -98,16 +104,14 @@ public class Environment : MonoBehaviour
         // Check if new data has been received from the client
         if (action != default)
         {
-            Debug.Log("taking action..");
             StartCoroutine(Step(action));
             // Reset action to default so that it's processed only once
             action = default;
-            Debug.Log("Finished the action");
         }
 
-        if(IsStateUpdated()){
-            serverhost.SendResponseDataToClient(currentReward.ToString());
-        }
+        //if(IsStateUpdated()){
+        //    serverhost.SendResponseDataToClient(currentReward.ToString());
+        //}
     }
 
     public bool IsStateUpdated(){
@@ -128,8 +132,8 @@ public class Environment : MonoBehaviour
     }
 
     public void UpdateState(){
-        Debug.Log("hERE");
         List<float> stateList = new List<float>();
+        //string[] stateStrList = new string[ballsArray.Length * 4];
 
         foreach (GameObject ball in ballsArray){
             BallScript ballScript = ball.GetComponent<BallScript>();
@@ -146,8 +150,9 @@ public class Environment : MonoBehaviour
         stateList.Add(currentPlayerColour);
 
         state = stateList.ToArray();
-
         updatedState = true;
+
+        Debug.Log("UpdateState");
     }
 
     public bool CheckIfRedWon(){

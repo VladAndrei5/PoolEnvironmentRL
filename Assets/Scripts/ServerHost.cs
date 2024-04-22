@@ -4,6 +4,8 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using UnityEngine;
+using System.Collections;
+using System.Collections.Generic;
 
 public class ServerHost : MonoBehaviour
 {
@@ -92,6 +94,14 @@ public class ServerHost : MonoBehaviour
         //{
         //    thread.Abort();
         //}
+    }
+
+    public void ParseAndSendDataToClient(float[] state, float reward, bool terminal)
+    {
+        Debug.Log("parsing state: " + string.Join(",", state));
+        Debug.Log("parsing reward: " + reward);
+        Debug.Log("parsing terminal: " + terminal);
+        SendResponseDataToClient(string.Join(",", state) + "||" + reward + "," + terminal);
     }
 
     public void SendResponseDataToClient(string message)
