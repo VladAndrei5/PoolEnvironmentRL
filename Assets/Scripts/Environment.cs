@@ -93,6 +93,7 @@ public class Environment : MonoBehaviour
         yield break;
     }
     
+    /*
     void Update()
     {
         // Check if new data has been received from the client
@@ -122,16 +123,15 @@ public class Environment : MonoBehaviour
 
         }
     }
-    
+    */
 
-    /*
+    
     void Update(){
         if(updatedState){
             StartCoroutine(Step( (0.1f, 1f) ));
         }
     }
-    */
-
+    
     public void ReseWhitetBall(){
         whiteBallControls.Reset();
     }
