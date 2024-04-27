@@ -11,12 +11,23 @@ public class BallScript : MonoBehaviour
     //0 is red , 1 is yellow, 2 is black, 3 is white
     public int ballColour;
     public Environment env;
+
+    private Vector2 originalPosition;
     void Awake()
     {
         isActive = true;
         isMoving = false;
+        originalPosition = new Vector2(transform.position.x, transform.position.y);
     }
 
+    public void ResetBall(){
+        transform.position = new Vector3(originalPosition.x, originalPosition.y, transform.position.z);
+        isActive = true;
+        isMoving = false;
+        GetComponent<SpriteRenderer>().enabled = true;
+        GetComponent<CircleCollider2D>().enabled = true;
+        GetComponent<Rigidbody2D>().simulated = true;
+    }
     private void DisableBall(){
         isActive = false;
         GetComponent<SpriteRenderer>().enabled = false;

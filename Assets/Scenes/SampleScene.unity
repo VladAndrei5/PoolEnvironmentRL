@@ -285,7 +285,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ballColour: 1
-  env: {fileID: 807302726}
+  env: {fileID: 0}
 --- !u!1 &51174969
 GameObject:
   m_ObjectHideFlags: 0
@@ -509,7 +509,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ballColour: 3
-  env: {fileID: 807302726}
+  env: {fileID: 0}
 --- !u!1 &143098648
 GameObject:
   m_ObjectHideFlags: 0
@@ -909,7 +909,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ballColour: 2
-  env: {fileID: 807302726}
+  env: {fileID: 0}
 --- !u!1 &351797839
 GameObject:
   m_ObjectHideFlags: 0
@@ -1774,7 +1774,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ballColour: 1
-  env: {fileID: 807302726}
+  env: {fileID: 0}
 --- !u!1 &664675915
 GameObject:
   m_ObjectHideFlags: 0
@@ -2235,7 +2235,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ballColour: 1
-  env: {fileID: 807302726}
+  env: {fileID: 0}
 --- !u!1 &776847745
 GameObject:
   m_ObjectHideFlags: 0
@@ -2398,7 +2398,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ballColour: 0
-  env: {fileID: 807302726}
+  env: {fileID: 0}
 --- !u!1 &784269984
 GameObject:
   m_ObjectHideFlags: 0
@@ -2561,7 +2561,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ballColour: 1
-  env: {fileID: 807302726}
+  env: {fileID: 0}
 --- !u!1 &807302725
 GameObject:
   m_ObjectHideFlags: 0
@@ -2595,13 +2595,15 @@ MonoBehaviour:
   whiteBallControls: {fileID: 77666568}
   angle: 1
   maxVelocity: 100
-  gameSpeed: 5
+  gameSpeed: 2
   currentPlayer: 0
-  currentReward: 0
+  reward: 0
   currentState: 0
   gameOver: 0
   changePlayer: 0
-  ballsArray: []
+  ballsArray:
+  - {fileID: 77666563}
+  - {fileID: 1073322383}
   playerNumbText: {fileID: 254384068}
   state: []
   currentPlayerColour: 0
@@ -2761,8 +2763,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9a780263038c7a448a46c75f16f9b1bc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  serverPort: 12345
-  environment: {fileID: 807302726}
+  env: {fileID: 807302726}
 --- !u!4 &868791562
 Transform:
   m_ObjectHideFlags: 0
@@ -3237,7 +3238,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ballColour: 1
-  env: {fileID: 807302726}
+  env: {fileID: 0}
 --- !u!1 &1162736982
 GameObject:
   m_ObjectHideFlags: 0
@@ -3530,7 +3531,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ballColour: 0
-  env: {fileID: 807302726}
+  env: {fileID: 0}
 --- !u!1 &1246723861
 GameObject:
   m_ObjectHideFlags: 0
@@ -3823,7 +3824,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ballColour: 0
-  env: {fileID: 807302726}
+  env: {fileID: 0}
 --- !u!1 &1330330732
 GameObject:
   m_ObjectHideFlags: 0
@@ -3986,7 +3987,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ballColour: 1
-  env: {fileID: 807302726}
+  env: {fileID: 0}
 --- !u!1 &1336047004
 GameObject:
   m_ObjectHideFlags: 0
@@ -4149,7 +4150,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ballColour: 0
-  env: {fileID: 807302726}
+  env: {fileID: 0}
 --- !u!1 &1490307042
 GameObject:
   m_ObjectHideFlags: 0
@@ -4312,7 +4313,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ballColour: 1
-  env: {fileID: 807302726}
+  env: {fileID: 0}
 --- !u!1 &1574374166
 GameObject:
   m_ObjectHideFlags: 0
@@ -4475,7 +4476,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ballColour: 0
-  env: {fileID: 807302726}
+  env: {fileID: 0}
 --- !u!1 &1779961565
 GameObject:
   m_ObjectHideFlags: 0
@@ -4638,7 +4639,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ballColour: 0
-  env: {fileID: 807302726}
+  env: {fileID: 0}
 --- !u!1 &1850156173
 GameObject:
   m_ObjectHideFlags: 0
@@ -4869,7 +4870,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ballColour: 0
-  env: {fileID: 807302726}
+  env: {fileID: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

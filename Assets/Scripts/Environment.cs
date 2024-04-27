@@ -21,7 +21,7 @@ public class Environment : MonoBehaviour
     private bool stationaryBalls = true;
 
     public int currentPlayer = 0;
-    public int currentReward;
+    public int reward;
     public int currentState;
 
     public bool gameOver = false;
@@ -49,18 +49,18 @@ public class Environment : MonoBehaviour
         //TODO change this
         updatedState = false;
         currentPlayerColour = 1;
-        ballsArray = GameObject.FindGameObjectsWithTag("Ball");
         stationaryBalls = true;
-        gameOver =false;
+        gameOver = false;
         changePlayer = false;
         playerNumbText.text = "1";
         playerNumbText.color = Color.red;
         SetGameSpeed(gameSpeed);
+        UpdateState();
     }
 
-    IEnumerator Step((float, float) action){
+    public IEnumerator Step((float, float) action){
         updatedState = false;
-        currentReward = -1;
+        reward = -1;
 
         stationaryBalls = false;
         float randomAngleAdd = Random.Range((float)-0.03, (float)0.03);
@@ -81,20 +81,7 @@ public class Environment : MonoBehaviour
             }
             yield return null;
         }
-
         UpdateState();
-
-        Debug.Log("Finished the action");
-
-        // Send state, send reward, send gameOver to client
-        serverhost.ParseAndSendDataToClient(state, currentReward, gameOver);
-
-        /*
-        if(gameOver){
-            ResetEnv();
-        }
-        */
-
         yield break;
     }
     
@@ -109,23 +96,17 @@ public class Environment : MonoBehaviour
             action = default;
         }
 
-        //if(IsStateUpdated()){
-        //    serverhost.SendResponseDataToClient(currentReward.ToString());
-        //}
+        if(serverhost.resetTheLevel == true){
+            ResetEnv();
+            serverhost.resetTheLevel = false; 
+        }
+
     }
+    
 
     public bool IsStateUpdated(){
         return updatedState;
     }
-    
-
-    /*
-    void Update(){
-        if(updatedState){
-            StartCoroutine(Step( (0.1f, 1f) ));
-        }
-    }
-    */
     
     public void ResetWhiteBall(){
         whiteBallControls.Reset();
@@ -144,8 +125,6 @@ public class Environment : MonoBehaviour
             stateList.Add((float)ballScript.GetBallActive());
 
         }
-
-    
 
         stateList.Add(currentPlayerColour);
 
@@ -200,11 +179,11 @@ public class Environment : MonoBehaviour
     }
 
     public void UpdateReward(int newReward){
-        currentReward = currentReward + newReward;
+        reward = reward + newReward;
     }
 
     public void ResetReward(){
-        currentReward = 0;
+        reward = 0;
     }
 
     // Method to process data received from the Server GameObject
@@ -214,12 +193,44 @@ public class Environment : MonoBehaviour
         action = receivedAction;
     }
 
-    private void ResetEnv(){
-        SceneManager.LoadScene(0);
+    public void ResetEnv(){
+        updatedState = false;
+        reward = 0;
+        gameOver = false;
+        foreach (GameObject ball in ballsArray){
+            BallScript ballScript = ball.GetComponent<BallScript>();
+            ballScript.ResetBall();
+        }
+        currentPlayerColour = 1;
+        stationaryBalls = true;
+        changePlayer = false;
+        playerNumbText.text = "1";
+        playerNumbText.color = Color.red;
+        UpdateState();
     }
 
     private void SetGameSpeed(float speed){
         Time.timeScale = speed;
+    }
+
+    public bool IsTerminal()
+    {
+        return gameOver;
+    }
+
+    public int GetReward()
+    {
+        return reward;
+    }
+
+    public float[] GetState()
+    {
+        return state;
+    }
+
+    public void TakeAction((float, float) action){
+        updatedState = false;
+        this.action = action;
     }
 
 

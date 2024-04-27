@@ -1,113 +1,129 @@
 using System;
-using System.Text;
 using System.Net;
 using System.Net.Sockets;
+using System.Text;
 using System.Threading;
 using UnityEngine;
-using System.Collections;
-using System.Collections.Generic;
 
 public class ServerHost : MonoBehaviour
 {
-    public int serverPort = 12345;
-    public Environment environment; // Reference to the Environment GameObject
+    private TcpListener server;
+    private TcpClient client;
+    private Thread clientThread;
 
-    TcpListener server = null;
-    TcpClient client = null;
-    NetworkStream stream = null;
-    Thread thread;
-
+    public Environment env;
+    public bool resetTheLevel = false;
     private void Start()
     {
-        thread = new Thread(new ThreadStart(SetupServer));
-        thread.Start();
+        resetTheLevel = false;
+        server = new TcpListener(IPAddress.Parse("127.0.0.1"), 8888);
+        server.Start();
+        Debug.Log("Server started. Waiting for a connection...");
+
+        clientThread = new Thread(new ThreadStart(ListenForClients));
+        clientThread.Start();
     }
 
-    private void SetupServer()
+    private void ListenForClients()
     {
-        try
-        {
-            server = new TcpListener(IPAddress.Any, serverPort);
-            server.Start();
-            Debug.Log("Server started.");
+        client = server.AcceptTcpClient();
+        Debug.Log("Client connected!");
+        while (true)
+        {   
+            while(resetTheLevel){
+                Thread.Sleep(500);
+            }
+            try{
+                NetworkStream stream = client.GetStream();
 
-            byte[] buffer = new byte[1024];
-            string data = null;
+                byte[] buffer = new byte[1024];
+                int bytesRead = stream.Read(buffer, 0, buffer.Length);
+                string dataReceived = Encoding.ASCII.GetString(buffer, 0, bytesRead);
 
-            while (true)
-            {
-                Debug.Log("Waiting for connection...");
-                client = server.AcceptTcpClient();
-                Debug.Log("Connected!");
+                string[] instructions = dataReceived.Split(',');
+                float instruction1 = float.Parse(instructions[0]);
+                float instruction2 = float.Parse(instructions[1]);
 
-                data = null;
-                stream = client.GetStream();
-
-                int i;
-
-                while ((i = stream.Read(buffer, 0, buffer.Length)) != 0)
+                Debug.Log($"Received instructions: ({instruction1}, {instruction2})");
+                //StartCoroutine(env.Step((instruction1, instruction2)));
+                env.TakeAction((instruction1, instruction2));
+                //Debug.Log(env.IsStateUpdated());
+                // Wait until a condition becomes true
+                while (!env.IsStateUpdated())
                 {
-                    data = Encoding.UTF8.GetString(buffer, 0, i);
-
-                    // Parse the data
-                    string[] stringArray = data.Split(',');
-                    (float, float) action = (float.Parse(stringArray[0]), float.Parse(stringArray[1]));
-                    Debug.Log("Received action: " + action);
-
-
-                    //// Responses back to the client
-                    //string response = "Server received action: " + data.ToString();
-                    //SendResponseDataToClient(response);
-
-                    // Pass the action data to the Environment GameObject
-                    environment.ProcessReceivedData(action);
-
+                    //Debug.Log("Sleeping");
+                    //Debug.Log(env.IsStateUpdated());
+                    byte[] responseBytesWait = Encoding.ASCII.GetBytes("WAIT");
+                    stream.Write(responseBytesWait, 0, responseBytesWait.Length);
+                    Thread.Sleep(500);
                 }
-                client.Close();
+
+                float[] state = env.GetState();
+                int reward = env.GetReward();
+                bool terminal = env.IsTerminal();
+                //Debug.Log("terminal " + terminal);
+
+                string response = $"{string.Join(",", state)},{reward},{terminal}";
+                byte[] responseBytes = Encoding.ASCII.GetBytes(response);
+                stream.Write(responseBytes, 0, responseBytes.Length);
+
+                Debug.Log($"Sent response: {response}");
+
+                //reset the game if game is over
+                if(env.gameOver == true){
+                    resetTheLevel = true;
+                }
+            }
+            catch (Exception e)
+            {
+                // Catching any exception that occurs
+                Debug.LogError("An error occurred: " + e.Message);
+                server.Stop();
             }
         }
-        catch (SocketException e)
-        {
-            Debug.Log("SocketException: " + e);
-        }
-        finally
-        {
-            server.Stop();
-        }
     }
+
+    /*
+    private bool SomeCondition()
+    {
+        // Replace with your actual condition
+        return true;
+    }
+
+    private bool IsTerminal()
+    {
+        // Replace with your actual terminal condition
+        return false;
+    }
+
+    private int GetReward()
+    {
+        // Replace with your actual reward calculation
+        return 10;
+    }
+
+    private float[] GetState()
+    {
+        // Replace with your actual state retrieval
+        return new float[] { 1.0f, 2.0f, 3.0f };
+    }
+    */
 
     private void OnApplicationQuit()
     {
-        if (stream != null)
+        if (clientThread != null)
         {
-            stream.Close();
+            clientThread.Abort();
         }
+
         if (client != null)
         {
             client.Close();
         }
+
         if (server != null)
         {
             server.Stop();
         }
-        //if(thread != null)
-        //{
-        //    thread.Abort();
-        //}
-    }
-
-    public void ParseAndSendDataToClient(float[] state, float reward, bool terminal)
-    {
-        Debug.Log("parsing state: " + string.Join(",", state));
-        Debug.Log("parsing reward: " + reward);
-        Debug.Log("parsing terminal: " + terminal);
-        SendResponseDataToClient(string.Join(",", state) + "||" + reward + "," + terminal);
-    }
-
-    public void SendResponseDataToClient(string message)
-    {
-        byte[] msg = Encoding.UTF8.GetBytes(message);
-        stream.Write(msg, 0, msg.Length);
-        Debug.Log("Sent: " + message);
     }
 }
