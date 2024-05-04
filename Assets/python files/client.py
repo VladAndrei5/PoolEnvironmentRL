@@ -25,9 +25,9 @@ def main():
         s.connect((host, port))
         print("Connected to the server.")
         
-        for _ in range(5):  # Repeat the cycle 5 times
+        for _ in range(200):  # Repeat the cycle 5 times
             wait_for_action_finished = True
-            instruction = (4, 0.5)  # Replace with your actual instruction values
+            instruction = (120, 0.5)  # Replace with your actual instruction values
             send_instruction(s, instruction)
             print("sending instruction from python")
             
