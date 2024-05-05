@@ -67,7 +67,7 @@ public class Environment : MonoBehaviour
         float randomAngleAdd = Random.Range((float)-0.03, (float)0.03);
         float randomPowerAdd = 0f;
 
-        Debug.Log("taking action..");
+        //Debug.Log("taking action..");
         whiteBallControls.MoveBall(action.Item1 + randomAngleAdd, (action.Item2 + randomPowerAdd) * maxVelocity);
         //check if all balls are not moving
         
@@ -76,7 +76,7 @@ public class Environment : MonoBehaviour
             stationaryBalls = true;
             foreach (GameObject ball in ballsArray){
                 Rigidbody2D rb = ball.GetComponent<Rigidbody2D>();
-                if (  (rb.velocity.magnitude > 0.01f || Mathf.Abs(rb.angularVelocity) > 0.01f) && rb.simulated == true ){
+                if (  (rb.velocity.magnitude > 0.1f || Mathf.Abs(rb.angularVelocity) > 0.1f) && rb.simulated == true ){
                     stationaryBalls = false;
                 }
             }
@@ -98,7 +98,7 @@ public class Environment : MonoBehaviour
         }
 
         if(serverhost.resetTheLevel == true){
-            Debug.Log("reseting env..");
+            //Debug.Log("reseting env..");
             ResetEnv();
             serverhost.resetTheLevel = false; 
         }
@@ -133,7 +133,7 @@ public class Environment : MonoBehaviour
         state = stateList.ToArray();
         updatedState = true;
 
-        Debug.Log("UpdateState");
+        //Debug.Log("Updated State, terminal: " + IsTerminal() );
     }
 
     public bool CheckIfRedWon(){
@@ -169,6 +169,7 @@ public class Environment : MonoBehaviour
         }
 
         if(didWin && currentPlayerColour == 1){
+            //Debug.Log("won");
             UpdateReward(rewardPerWin);
             gameOver = true;
         }
@@ -191,7 +192,7 @@ public class Environment : MonoBehaviour
     // Method to process data received from the Server GameObject
     public void ProcessReceivedData((float, float) receivedAction)
     {
-        Debug.Log("ProcessReceivedData...");
+        //Debug.Log("ProcessReceivedData...");
         action = receivedAction;
     }
 
@@ -233,7 +234,7 @@ public class Environment : MonoBehaviour
     }
 
     public void TakeAction((float, float) action){
-        Debug.Log(action);
+        //Debug.Log(action);
         updatedState = false;
         this.action = action;
     }

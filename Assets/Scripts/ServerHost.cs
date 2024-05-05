@@ -35,24 +35,18 @@ public class ServerHost : MonoBehaviour
         string response = $"{string.Join(",", state)},{reward},{terminal}";
         byte[] responseBytes = Encoding.ASCII.GetBytes(response);
 
+        //Debug.Log("Server sent back " + state + " " + reward + " " + terminal);
         stream.Write(responseBytes, 0, responseBytes.Length);
 
-        Debug.Log($"Sent state: {response}");
+        //Debug.Log($"Sent state: {response}");
     }
 
     private void SendWaitCommand(NetworkStream stream){
 
         byte[] responseBytes = Encoding.ASCII.GetBytes("WAIT");
         stream.Write(responseBytes, 0, responseBytes.Length);
-        Debug.Log("waiting");
+        //Debug.Log("waiting");
     }
-
-    private void SendReadyToGo(NetworkStream stream){
-
-        byte[] responseBytes = Encoding.ASCII.GetBytes("READYTOGO");
-        stream.Write(responseBytes, 0, responseBytes.Length);
-    }
-
 
     private void ListenForClients()
     {
@@ -61,8 +55,8 @@ public class ServerHost : MonoBehaviour
         while (true)
         {   
             while(resetTheLevel){
-                Thread.Sleep(500);
-                Debug.Log("sleep1");
+                Thread.Sleep(25);
+                //Debug.Log("sleep1");
             }
             try{
                 
@@ -70,9 +64,9 @@ public class ServerHost : MonoBehaviour
 
                 while (!env.IsStateUpdated())
                 {
-                    Debug.Log("hi");
+                    //Debug.Log("hi");
                     SendWaitCommand(stream);
-                    Thread.Sleep(500);
+                    Thread.Sleep(25);
                 }
 
                 SendStateBack(stream);
@@ -88,14 +82,14 @@ public class ServerHost : MonoBehaviour
                     while (resetTheLevel)
                     {
                         SendWaitCommand(stream);
-                        Thread.Sleep(500);
+                        Thread.Sleep(25);
                     }
                     while (!env.IsStateUpdated())
                     {
                         SendWaitCommand(stream);
-                        Thread.Sleep(500);
+                        Thread.Sleep(25);
                     }
-                    
+
                     SendStateBack(stream);
                 }
                 else if (dataReceived.StartsWith("INSTRUCTION"))
@@ -111,22 +105,22 @@ public class ServerHost : MonoBehaviour
                     while (!env.IsStateUpdated())
                     {
                         SendWaitCommand(stream);
-                        Thread.Sleep(500);
+                        Thread.Sleep(25);
                     }
 
                     SendStateBack(stream);
 
                     // Check if the game is over
-                    if (env.gameOver)
-                    {
-                        resetTheLevel = true;
-                    }
+                    //if (env.gameOver)
+                    //{
+                        //resetTheLevel = true;
+                    //}
                 }
                 else{
                     while (!env.IsStateUpdated())
                     {
                         SendWaitCommand(stream);
-                        Thread.Sleep(500);
+                        Thread.Sleep(25);
                     }
                 }
                 

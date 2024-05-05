@@ -24,6 +24,9 @@ public class BallScript : MonoBehaviour
         transform.position = new Vector3(originalPosition.x, originalPosition.y, transform.position.z);
         isActive = true;
         isMoving = false;
+        Rigidbody2D rb = GetComponent<Rigidbody2D>();
+        rb.velocity = Vector2.zero;
+        rb.angularVelocity = 0f;
         GetComponent<SpriteRenderer>().enabled = true;
         GetComponent<CircleCollider2D>().enabled = true;
         GetComponent<Rigidbody2D>().simulated = true;
@@ -53,16 +56,16 @@ public class BallScript : MonoBehaviour
                 }
                 else if(env.currentPlayer == ballColour){
                     env.UpdateReward(env.rewardPerCorrectBall);
-                    env.CheckIfRedWon();
-                    env.CheckIfYellowWon();
                     DisableBall();
+                    //env.CheckIfRedWon();
+                    env.CheckIfYellowWon();
                 }
                 else if(env.currentPlayer != ballColour){
                     env.UpdateReward(env.rewardPerWrongBall);
-                    env.CheckIfRedWon();
+                    DisableBall();
+                    //env.CheckIfRedWon();
                     env.CheckIfYellowWon();
                     //env.changePlayer = true;
-                    DisableBall();
                 }
                 
             }

@@ -2595,7 +2595,7 @@ MonoBehaviour:
   whiteBallControls: {fileID: 77666568}
   angle: 1
   maxVelocity: 100
-  gameSpeed: 0.8
+  gameSpeed: 0.6
   currentPlayer: 0
   reward: 0
   currentState: 0
@@ -2606,7 +2606,7 @@ MonoBehaviour:
   - {fileID: 1073322383}
   playerNumbText: {fileID: 254384068}
   state: []
-  currentPlayerColour: 0
+  currentPlayerColour: 1
   rewardPerWrongBall: -5
   rewardPerCorrectBall: 5
   rewardPerBlackBall: -200
