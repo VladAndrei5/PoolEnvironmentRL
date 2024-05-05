@@ -2595,7 +2595,7 @@ MonoBehaviour:
   whiteBallControls: {fileID: 77666568}
   angle: 1
   maxVelocity: 100
-  gameSpeed: 0.6
+  gameSpeed: 100
   currentPlayer: 0
   reward: 0
   currentState: 0
@@ -2604,6 +2604,8 @@ MonoBehaviour:
   ballsArray:
   - {fileID: 77666563}
   - {fileID: 1073322383}
+  - {fileID: 1490307042}
+  - {fileID: 1169489786}
   playerNumbText: {fileID: 254384068}
   state: []
   currentPlayerColour: 1
@@ -3389,7 +3391,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!58 &1169489787
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -4171,7 +4173,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!58 &1490307043
 CircleCollider2D:
   m_ObjectHideFlags: 0

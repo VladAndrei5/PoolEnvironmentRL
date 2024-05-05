@@ -57,13 +57,13 @@ public class BallScript : MonoBehaviour
                 else if(env.currentPlayer == ballColour){
                     env.UpdateReward(env.rewardPerCorrectBall);
                     DisableBall();
-                    //env.CheckIfRedWon();
+                    env.CheckIfRedWon();
                     env.CheckIfYellowWon();
                 }
                 else if(env.currentPlayer != ballColour){
                     env.UpdateReward(env.rewardPerWrongBall);
                     DisableBall();
-                    //env.CheckIfRedWon();
+                    env.CheckIfRedWon();
                     env.CheckIfYellowWon();
                     //env.changePlayer = true;
                 }

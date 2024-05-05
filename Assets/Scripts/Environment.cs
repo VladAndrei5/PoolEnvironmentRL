@@ -137,6 +137,11 @@ public class Environment : MonoBehaviour
     }
 
     public bool CheckIfRedWon(){
+
+        if(gameOver){
+            return false;
+        }
+
         bool didWin = true;
         foreach (GameObject ball in ballsArray){
             BallScript ballScript = ball.GetComponent<BallScript>();
@@ -159,6 +164,10 @@ public class Environment : MonoBehaviour
     }
 
     public bool CheckIfYellowWon(){
+        if(gameOver){
+            return false;
+        }
+
         bool didWin = true;
         foreach (GameObject ball in ballsArray){
             BallScript ballScript = ball.GetComponent<BallScript>();
