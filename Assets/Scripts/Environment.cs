@@ -54,6 +54,7 @@ public class Environment : MonoBehaviour
         changePlayer = false;
         playerNumbText.text = "1";
         playerNumbText.color = Color.red;
+        reward = 0;
         SetGameSpeed(gameSpeed);
         UpdateState();
     }
@@ -97,6 +98,7 @@ public class Environment : MonoBehaviour
         }
 
         if(serverhost.resetTheLevel == true){
+            Debug.Log("reseting env..");
             ResetEnv();
             serverhost.resetTheLevel = false; 
         }
@@ -194,6 +196,7 @@ public class Environment : MonoBehaviour
     }
 
     public void ResetEnv(){
+        Debug.Log("Resetting Enviornment");
         updatedState = false;
         reward = 0;
         gameOver = false;
@@ -206,6 +209,7 @@ public class Environment : MonoBehaviour
         changePlayer = false;
         playerNumbText.text = "1";
         playerNumbText.color = Color.red;
+        Debug.Log("Enviornment Reset");
         UpdateState();
     }
 
@@ -229,6 +233,7 @@ public class Environment : MonoBehaviour
     }
 
     public void TakeAction((float, float) action){
+        Debug.Log(action);
         updatedState = false;
         this.action = action;
     }

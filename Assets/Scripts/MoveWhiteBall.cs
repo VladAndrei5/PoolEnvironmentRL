@@ -16,6 +16,7 @@ public class MoveWhiteBall : MonoBehaviour
     }
 
     public void Reset(){
+        Debug.Log("Reset White Ball");
         Rigidbody2D rb = GetComponent<Rigidbody2D>();
         rb.velocity = Vector2.zero;
         rb.angularVelocity = 0f;

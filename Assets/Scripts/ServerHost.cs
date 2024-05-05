@@ -24,6 +24,36 @@ public class ServerHost : MonoBehaviour
         clientThread.Start();
     }
 
+    private void SendStateBack(NetworkStream stream){
+
+        // Get the updated state, reward, and terminal flag
+        float[] state = env.GetState();
+        int reward = env.GetReward();
+        bool terminal = env.IsTerminal();
+
+        // Construct response
+        string response = $"{string.Join(",", state)},{reward},{terminal}";
+        byte[] responseBytes = Encoding.ASCII.GetBytes(response);
+
+        stream.Write(responseBytes, 0, responseBytes.Length);
+
+        Debug.Log($"Sent state: {response}");
+    }
+
+    private void SendWaitCommand(NetworkStream stream){
+
+        byte[] responseBytes = Encoding.ASCII.GetBytes("WAIT");
+        stream.Write(responseBytes, 0, responseBytes.Length);
+        Debug.Log("waiting");
+    }
+
+    private void SendReadyToGo(NetworkStream stream){
+
+        byte[] responseBytes = Encoding.ASCII.GetBytes("READYTOGO");
+        stream.Write(responseBytes, 0, responseBytes.Length);
+    }
+
+
     private void ListenForClients()
     {
         client = server.AcceptTcpClient();
@@ -32,47 +62,74 @@ public class ServerHost : MonoBehaviour
         {   
             while(resetTheLevel){
                 Thread.Sleep(500);
+                Debug.Log("sleep1");
             }
             try{
+                
                 NetworkStream stream = client.GetStream();
+
+                while (!env.IsStateUpdated())
+                {
+                    Debug.Log("hi");
+                    SendWaitCommand(stream);
+                    Thread.Sleep(500);
+                }
+
+                SendStateBack(stream);
 
                 byte[] buffer = new byte[1024];
                 int bytesRead = stream.Read(buffer, 0, buffer.Length);
                 string dataReceived = Encoding.ASCII.GetString(buffer, 0, bytesRead);
 
-                string[] instructions = dataReceived.Split(',');
-                float instruction1 = float.Parse(instructions[0]);
-                float instruction2 = float.Parse(instructions[1]);
-
-                Debug.Log($"Received instructions: ({instruction1}, {instruction2})");
-                //StartCoroutine(env.Step((instruction1, instruction2)));
-                env.TakeAction((instruction1, instruction2));
-                //Debug.Log(env.IsStateUpdated());
-                // Wait until a condition becomes true
-                while (!env.IsStateUpdated())
+                if (dataReceived.StartsWith("RESET"))
                 {
-                    //Debug.Log("Sleeping");
-                    //Debug.Log(env.IsStateUpdated());
-                    byte[] responseBytesWait = Encoding.ASCII.GetBytes("WAIT");
-                    stream.Write(responseBytesWait, 0, responseBytesWait.Length);
-                    Thread.Sleep(500);
-                }
-
-                float[] state = env.GetState();
-                int reward = env.GetReward();
-                bool terminal = env.IsTerminal();
-                //Debug.Log("terminal " + terminal);
-
-                string response = $"{string.Join(",", state)},{reward},{terminal}";
-                byte[] responseBytes = Encoding.ASCII.GetBytes(response);
-                stream.Write(responseBytes, 0, responseBytes.Length);
-
-                Debug.Log($"Sent response: {response}");
-
-                //reset the game if game is over
-                if(env.gameOver == true){
+                    // Reset the environment
                     resetTheLevel = true;
+                    while (resetTheLevel)
+                    {
+                        SendWaitCommand(stream);
+                        Thread.Sleep(500);
+                    }
+                    while (!env.IsStateUpdated())
+                    {
+                        SendWaitCommand(stream);
+                        Thread.Sleep(500);
+                    }
+                    
+                    SendStateBack(stream);
                 }
+                else if (dataReceived.StartsWith("INSTRUCTION"))
+                {
+                    string[] instructions = dataReceived.Split(',');
+                    float instruction1 = float.Parse(instructions[1]);
+                    float instruction2 = float.Parse(instructions[2]);
+
+                    // Execute instructions
+                    env.TakeAction((instruction1, instruction2));
+
+                    // Wait until the state is updated
+                    while (!env.IsStateUpdated())
+                    {
+                        SendWaitCommand(stream);
+                        Thread.Sleep(500);
+                    }
+
+                    SendStateBack(stream);
+
+                    // Check if the game is over
+                    if (env.gameOver)
+                    {
+                        resetTheLevel = true;
+                    }
+                }
+                else{
+                    while (!env.IsStateUpdated())
+                    {
+                        SendWaitCommand(stream);
+                        Thread.Sleep(500);
+                    }
+                }
+                
             }
             catch (Exception e)
             {
@@ -83,31 +140,7 @@ public class ServerHost : MonoBehaviour
         }
     }
 
-    /*
-    private bool SomeCondition()
-    {
-        // Replace with your actual condition
-        return true;
-    }
 
-    private bool IsTerminal()
-    {
-        // Replace with your actual terminal condition
-        return false;
-    }
-
-    private int GetReward()
-    {
-        // Replace with your actual reward calculation
-        return 10;
-    }
-
-    private float[] GetState()
-    {
-        // Replace with your actual state retrieval
-        return new float[] { 1.0f, 2.0f, 3.0f };
-    }
-    */
 
     private void OnApplicationQuit()
     {
