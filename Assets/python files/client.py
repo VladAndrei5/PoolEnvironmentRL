@@ -44,13 +44,8 @@ def main():
         s.connect((host, port))
         print("Connected to the server.")
         
-        reset_env(s)
-        state, reward, terminal = receive_state(s)
-        if terminal == True:
-            reset_env(s)
-            state, reward, terminal = receive_state(s)
         
-        for i in range(9):  # Repeat the cycle 5 times
+        for i in range(900):  # Repeat the cycle 5 times
             
             if i == 5:
                 reset_env(s)
@@ -60,7 +55,7 @@ def main():
                     state, reward, terminal = receive_state(s)
     
             else:
-                instruction = (130, 0.08)  # Replace with your actual instruction values
+                instruction = (2, 1)  # Replace with your actual instruction values
                 send_instruction(s, instruction)
                 state, reward, terminal = receive_state(s)
                 if terminal == True:

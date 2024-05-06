@@ -13,11 +13,13 @@ public class Environment : MonoBehaviour
     private (float, float) action;
     public float angle = 0f;
     //public float speed;
-    public float maxVelocity = 20f;
+    public float maxVelocity = 80f;
     // value between 0 - 1
     private float power = 1f;
-    public float gameSpeed = 1f;
 
+    public float gameSpeed = 1f;
+    private float previousGameSpeed = 1f;
+ 
     private bool stationaryBalls = true;
 
     public int currentPlayer = 0;
@@ -44,7 +46,18 @@ public class Environment : MonoBehaviour
     //!!!!!!!!!!!!!!!!!!!!
     //0 is red , 1 is yellow, 2 is black, 3 is white
 
+    private void OnValidate()
+    {
+        // Check if the value of myVariable has changed
+        if (gameSpeed != previousGameSpeed)
+        {
+            SetGameSpeed(gameSpeed);
+            previousGameSpeed = gameSpeed;
+        }
+    }
+
     void Start(){
+        previousGameSpeed = gameSpeed;
         //current player is Yellow
         //TODO change this
         updatedState = false;
@@ -77,9 +90,11 @@ public class Environment : MonoBehaviour
             foreach (GameObject ball in ballsArray){
                 Rigidbody2D rb = ball.GetComponent<Rigidbody2D>();
                 if (  (rb.velocity.magnitude > 0.2f || Mathf.Abs(rb.angularVelocity) > 0.2f) && rb.simulated == true ){
+                    stationaryBalls = false;
+                }
+                else{
                     rb.velocity = Vector2.zero;
                     rb.angularVelocity = 0f;
-                    stationaryBalls = false;
                 }
             }
             yield return null;
@@ -226,6 +241,7 @@ public class Environment : MonoBehaviour
     }
 
     private void SetGameSpeed(float speed){
+        Debug.Log(speed);
         Time.timeScale = speed;
     }
 
