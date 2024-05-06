@@ -43,6 +43,8 @@ public class Environment : MonoBehaviour
     public int rewardPerSkipTurn = -2;
 
     public bool updatedState;
+
+    private bool newActionRec = false;
     //!!!!!!!!!!!!!!!!!!!!
     //0 is red , 1 is yellow, 2 is black, 3 is white
 
@@ -73,11 +75,12 @@ public class Environment : MonoBehaviour
     }
 
     public IEnumerator Step((float, float) action){
+        Debug.Log(action);
         updatedState = false;
         reward = -1;
 
         stationaryBalls = false;
-        float randomAngleAdd = Random.Range((float)-0.03, (float)0.03);
+        float randomAngleAdd = 0f;
         float randomPowerAdd = 0f;
 
         //Debug.Log("taking action..");
@@ -107,11 +110,11 @@ public class Environment : MonoBehaviour
     void Update()
     {
         // Check if new data has been received from the client
-        if (action != default)
+        if (newActionRec)
         {
             StartCoroutine(Step(action));
             // Reset action to default so that it's processed only once
-            action = default;
+            newActionRec = false;
         }
 
         if(serverhost.resetTheLevel == true){
@@ -223,7 +226,7 @@ public class Environment : MonoBehaviour
     }
 
     public void ResetEnv(){
-        Debug.Log("Resetting Enviornment");
+        //Debug.Log("Resetting Enviornment");
         updatedState = false;
         reward = 0;
         gameOver = false;
@@ -236,7 +239,7 @@ public class Environment : MonoBehaviour
         changePlayer = false;
         playerNumbText.text = "1";
         playerNumbText.color = Color.red;
-        Debug.Log("Enviornment Reset");
+        //Debug.Log("Enviornment Reset");
         UpdateState();
     }
 
@@ -261,8 +264,10 @@ public class Environment : MonoBehaviour
     }
 
     public void TakeAction((float, float) action){
+        newActionRec = true;
         //Debug.Log(action);
         updatedState = false;
+        //Debug.Log(this.action);
         this.action = action;
     }
 
