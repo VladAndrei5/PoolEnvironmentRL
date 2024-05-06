@@ -76,7 +76,9 @@ public class Environment : MonoBehaviour
             stationaryBalls = true;
             foreach (GameObject ball in ballsArray){
                 Rigidbody2D rb = ball.GetComponent<Rigidbody2D>();
-                if (  (rb.velocity.magnitude > 0.1f || Mathf.Abs(rb.angularVelocity) > 0.1f) && rb.simulated == true ){
+                if (  (rb.velocity.magnitude > 0.2f || Mathf.Abs(rb.angularVelocity) > 0.2f) && rb.simulated == true ){
+                    rb.velocity = Vector2.zero;
+                    rb.angularVelocity = 0f;
                     stationaryBalls = false;
                 }
             }
