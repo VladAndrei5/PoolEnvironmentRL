@@ -49,7 +49,7 @@ public class MoveWhiteBall : MonoBehaviour
             
                 BallScript ball = collision.gameObject.GetComponent<BallScript>();
                 if(ball.GetBallColour() == env.currentPlayerColour){
-                    env.UpdateReward(env.rewardPerCorrectBall);
+                    env.UpdateReward(env.rewardPerHittingCorrectBall);
                 }
                 else{
                     //env.UpdateReward(env.rewardPerWrongBall);
@@ -62,7 +62,7 @@ public class MoveWhiteBall : MonoBehaviour
     public void CheckIfItHitReward(){
         //if it did not hit anything bad
         if(firstHit){
-            //env.UpdateReward(env.rewardPerNotHittingBall);
+            env.UpdateReward(env.rewardPerNotHittingBall);
         }
     }
     

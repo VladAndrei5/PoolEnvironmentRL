@@ -16,7 +16,7 @@ public class ServerHost : MonoBehaviour
     private void Start()
     {
         resetTheLevel = false;
-        server = new TcpListener(IPAddress.Parse("127.0.0.1"), 8888);
+        server = new TcpListener(IPAddress.Parse("127.0.0.1"), 4444);
         server.Start();
         Debug.Log("Server started. Waiting for a connection...");
 
@@ -25,7 +25,7 @@ public class ServerHost : MonoBehaviour
     }
 
     private void SendStateBack(NetworkStream stream){
-
+        Debug.Log("sendstateback");
         // Get the updated state, reward, and terminal flag
         float[] state = env.GetState();
         int reward = env.GetReward();
@@ -42,7 +42,7 @@ public class ServerHost : MonoBehaviour
     }
 
     private void SendWaitCommand(NetworkStream stream){
-
+        Debug.Log("wait");
         byte[] responseBytes = Encoding.ASCII.GetBytes("WAIT");
         stream.Write(responseBytes, 0, responseBytes.Length);
         //Debug.Log("waiting");

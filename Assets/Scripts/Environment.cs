@@ -81,13 +81,13 @@ public class Environment : MonoBehaviour
         //Debug.Log(action);
         updatedState = false;
         reward = 0;
-        UpdateReward(-1);
+        UpdateReward(-2);
 
         stationaryBalls = false;
         float randomAngleAdd = 0f;
         float randomPowerAdd = 0f;
 
-        Debug.Log("taking action..");
+        //Debug.Log("taking action..");
         //Debug.Log(action.Item1, action.Item2, action.Item3);
         whiteBallControls.MoveBall(action.Item1, action.Item2, action.Item3 * maxVelocity);
         //check if all balls are not moving
@@ -159,12 +159,39 @@ public class Environment : MonoBehaviour
             stateList.Add((float)ballScript.GetBallColour());
             stateList.Add((float)ballScript.GetBallActive());
 
-        }
 
-        stateList.Add(currentPlayerColour);
+        }
+        stateList.Add(22f);
+        stateList.Add(12f);
+
+
+
+
+        stateList.Add(-11f);
+        stateList.Add(-6f);
+
+        stateList.Add(-11f);
+        stateList.Add(6f);
+
+        stateList.Add(0f);
+        stateList.Add(-6f);
+
+        stateList.Add(0f);
+        stateList.Add(6f);
+
+        stateList.Add(11f);
+        stateList.Add(-6f);
+
+        stateList.Add(11f);
+        stateList.Add(6f);
+
+
+
+        //stateList.Add(currentPlayerColour);
+        //stateList.Add(currentPlayerColour);
 
         state = stateList.ToArray();
-        //Debug.Log(reward);
+        //Debug.Log("reward " + reward);
 
         updatedState = true;
     }
@@ -258,7 +285,7 @@ public class Environment : MonoBehaviour
     }
 
     private void SetGameSpeed(float speed){
-        Debug.Log(speed);
+        //Debug.Log(speed);
         Time.timeScale = speed;
     }
 
@@ -278,7 +305,7 @@ public class Environment : MonoBehaviour
     }
 
     public void TakeAction((float, float, float) action){
-        Debug.Log(action);
+        //Debug.Log(action);
         newActionRec = true;
         //Debug.Log(action);
         updatedState = false;

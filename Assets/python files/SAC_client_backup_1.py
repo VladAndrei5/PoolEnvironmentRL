@@ -44,7 +44,7 @@ def receive_state(s):
 def send_instruction(s, instruction):
     #print("sending instruction")
     check_wait(s)
-    print(instruction)
+    #print(instruction)
     #s.sendall(f"{instruction[0]},{instruction[1]}".encode())
     s.sendall(f"INSTRUCTION,{instruction[0]},{instruction[1]},{instruction[2]}".encode())
     #print(f"Sent instruction: {instruction}")
@@ -107,7 +107,7 @@ print("Using {}".format(device))
 
 no_balls = 7
 
-state_dim = no_balls * 4 + 1
+state_dim = no_balls * 4 + 14
 act_dim = 3
 
 #Limits the number of time steps per episode to avoid hovering 
@@ -131,10 +131,10 @@ learning_rate=0.001
 #Used for soft update of the target critics
 tau = 0.01
 
-epoch = 1000
+epoch = 300
 time_steps = epoch * 10
 test_episodes = 3
-initial_steps = 800
+initial_steps = 1000
 buffer_size = 1000000
 batch_size = 256
 
@@ -378,7 +378,10 @@ def SAC():
                 state, reward, done = send_action(s, action)
                 tot_reward += reward
                 ep_len += 1
+            print(j)
             mean_reward.append(tot_reward)
+        print("test")
+        print(np.sum(mean_reward)/test_episodes)
         total_test_reward.append(np.sum(mean_reward)/test_episodes)
     
     def sample_action():
@@ -400,7 +403,7 @@ def SAC():
         step_counter=0
         episode = 0
         host = '127.0.0.1'
-        port = 8888
+        port = 4444
         s.connect((host, port))
         print("Connected to the server.")
         state = reset(s)
@@ -416,8 +419,11 @@ def SAC():
                 action = get_action(state)
                 #print("Action=", action)
             #Take a step using the action
-
+            #print(action)
             next_state, reward, done = send_action(s, action)
+            
+            #print("done")
+            #print(done)
             
             step_counter+=1
             if step_counter >= step_limit:
@@ -432,6 +438,8 @@ def SAC():
             
             #Update the state
             state = next_state
+            
+            #print(state)
             
             if done:
                 #When done add total reward to a list and set to 0 again, then reset env

@@ -414,7 +414,7 @@ Transform:
   m_GameObject: {fileID: 77666563}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -5.98, y: 0, z: 0}
+  m_LocalPosition: {x: -5.68, y: 0, z: 0}
   m_LocalScale: {x: 0.56, y: 0.56, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -2614,14 +2614,14 @@ MonoBehaviour:
   state: []
   currentPlayerColour: 1
   rewardPerWrongBall: -5
-  rewardPerCorrectBall: 5
+  rewardPerCorrectBall: 15
   rewardPerBlackBall: -200
   rewardPerWin: 100
   rewardPerLose: -100
-  rewardPerSkipTurn: -2
-  rewardPerHittingCorrectBall: 3
+  rewardPerSkipTurn: -5
+  rewardPerHittingCorrectBall: 1
   rewardPerHittingWrongBall: -3
-  rewardPerNotHittingBall: -2
+  rewardPerNotHittingBall: -10
   updatedState: 0
 --- !u!4 &807302727
 Transform:
