@@ -39,7 +39,7 @@ public class MoveWhiteBall : MonoBehaviour
         // Create and return the direction vector
         return new Vector2(x, y);
     }
-    /*
+    
     private void OnCollisionEnter2D(Collision2D collision)
     {
         // Check if the collided object has the "ball" tag.
@@ -52,7 +52,7 @@ public class MoveWhiteBall : MonoBehaviour
                     env.UpdateReward(env.rewardPerCorrectBall);
                 }
                 else{
-                    env.UpdateReward(env.rewardPerWrongBall);
+                    //env.UpdateReward(env.rewardPerWrongBall);
                 }
                 firstHit = false;
             }
@@ -62,10 +62,10 @@ public class MoveWhiteBall : MonoBehaviour
     public void CheckIfItHitReward(){
         //if it did not hit anything bad
         if(firstHit){
-            env.UpdateReward(env.rewardPerNotHittingBall);
+            //env.UpdateReward(env.rewardPerNotHittingBall);
         }
     }
-    */
+    
 
     public void MoveBall(float xCord, float yCord, float velocity){
         //float angleRadians = Mathf.Atan2(yCord, xCord);

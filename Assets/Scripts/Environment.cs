@@ -92,22 +92,23 @@ public class Environment : MonoBehaviour
         whiteBallControls.MoveBall(action.Item1, action.Item2, action.Item3 * maxVelocity);
         //check if all balls are not moving
         
+        bool checkedWhiteBall = false;
         while(!stationaryBalls){
             //In this loop the reward is updated
             stationaryBalls = true;
-            bool checkedWhiteBall = false;
+   
             foreach (GameObject ball in ballsArray){
                 Rigidbody2D rb = ball.GetComponent<Rigidbody2D>();
                 if (  (rb.velocity.magnitude > 0.2f || Mathf.Abs(rb.angularVelocity) > 0.2f) && rb.simulated == true ){
                     stationaryBalls = false;
                 }
                 else{
-                    /*
-                    if(ball.CompareTag("WhiteBall") && !checkedWhiteBall){
+                    
+                    if(ball.CompareTag("WhiteBall") && checkedWhiteBall == false){
                         whiteBallControls.CheckIfItHitReward();
                         checkedWhiteBall = true;
                     }
-                    */
+                    
                     rb.velocity = Vector2.zero;
                     rb.angularVelocity = 0f;
                 }

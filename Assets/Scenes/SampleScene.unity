@@ -348,7 +348,7 @@ GameObject:
   - component: {fileID: 77666569}
   m_Layer: 0
   m_Name: WhiteBall
-  m_TagString: Ball
+  m_TagString: WhiteBall
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -496,7 +496,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   direction: {x: 1, y: 0.02}
   initialVelocity: 10
-  env: {fileID: 0}
+  env: {fileID: 807302726}
 --- !u!114 &77666569
 MonoBehaviour:
   m_ObjectHideFlags: 0
