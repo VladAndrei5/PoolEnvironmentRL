@@ -95,9 +95,11 @@ public class ServerHost : MonoBehaviour
                 else if (dataReceived.StartsWith("INSTRUCTION"))
                 {
                     string[] instructions = dataReceived.Split(',');
+                    //Debug.Log(instructions);
                     float instruction1 = float.Parse(instructions[1]);
                     float instruction2 = float.Parse(instructions[2]);
-
+                    //Debug.Log(instruction1);
+                    //Debug.Log(instruction2);
                     // Execute instructions
                     env.TakeAction((instruction1, instruction2));
 

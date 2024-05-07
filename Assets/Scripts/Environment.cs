@@ -35,12 +35,15 @@ public class Environment : MonoBehaviour
     public float[] state;
     public int currentPlayerColour;
 
-    public int rewardPerWrongBall = -5;
-    public int rewardPerCorrectBall = 5;
+    public int rewardPerWrongBall = -10;
+    public int rewardPerCorrectBall = 10;
     public int rewardPerBlackBall = -200;
     public int rewardPerWin = 100;
     public int rewardPerLose = -100;
     public int rewardPerSkipTurn = -2;
+    public int rewardPerHittingCorrectBall = 3;
+    public int rewardPerHittingWrongBall = -3;
+    public int rewardPerNotHittingBall = -2;
 
     public bool updatedState;
 
@@ -75,9 +78,10 @@ public class Environment : MonoBehaviour
     }
 
     public IEnumerator Step((float, float) action){
-        Debug.Log(action);
+        //Debug.Log(action);
         updatedState = false;
-        reward = -1;
+        reward = 0;
+        UpdateReward(-1);
 
         stationaryBalls = false;
         float randomAngleAdd = 0f;
@@ -90,12 +94,19 @@ public class Environment : MonoBehaviour
         while(!stationaryBalls){
             //In this loop the reward is updated
             stationaryBalls = true;
+            bool checkedWhiteBall = false;
             foreach (GameObject ball in ballsArray){
                 Rigidbody2D rb = ball.GetComponent<Rigidbody2D>();
                 if (  (rb.velocity.magnitude > 0.2f || Mathf.Abs(rb.angularVelocity) > 0.2f) && rb.simulated == true ){
                     stationaryBalls = false;
                 }
                 else{
+                    
+                    if(ball.CompareTag("WhiteBall") && !checkedWhiteBall){
+                        whiteBallControls.CheckIfItHitReward();
+                        checkedWhiteBall = true;
+                    }
+
                     rb.velocity = Vector2.zero;
                     rb.angularVelocity = 0f;
                 }
@@ -151,9 +162,9 @@ public class Environment : MonoBehaviour
         stateList.Add(currentPlayerColour);
 
         state = stateList.ToArray();
-        updatedState = true;
+        //Debug.Log(reward);
 
-        //Debug.Log("Updated State, terminal: " + IsTerminal() );
+        updatedState = true;
     }
 
     public bool CheckIfRedWon(){
@@ -227,6 +238,7 @@ public class Environment : MonoBehaviour
 
     public void ResetEnv(){
         //Debug.Log("Resetting Enviornment");
+        newActionRec = false;
         updatedState = false;
         reward = 0;
         gameOver = false;
