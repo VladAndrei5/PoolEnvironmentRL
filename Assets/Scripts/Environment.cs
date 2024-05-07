@@ -10,7 +10,7 @@ public class Environment : MonoBehaviour
 {
     public ServerHost serverhost;
     public MoveWhiteBall whiteBallControls;
-    private (float, float) action;
+    private (float, float, float) action;
     public float angle = 0f;
     //public float speed;
     public float maxVelocity = 80f;
@@ -77,7 +77,7 @@ public class Environment : MonoBehaviour
         UpdateState();
     }
 
-    public IEnumerator Step((float, float) action){
+    public IEnumerator Step((float, float, float) action){
         //Debug.Log(action);
         updatedState = false;
         reward = 0;
@@ -87,8 +87,9 @@ public class Environment : MonoBehaviour
         float randomAngleAdd = 0f;
         float randomPowerAdd = 0f;
 
-        //Debug.Log("taking action..");
-        whiteBallControls.MoveBall(action.Item1 + randomAngleAdd, (action.Item2 + randomPowerAdd) * maxVelocity);
+        Debug.Log("taking action..");
+        //Debug.Log(action.Item1, action.Item2, action.Item3);
+        whiteBallControls.MoveBall(action.Item1, action.Item2, action.Item3 * maxVelocity);
         //check if all balls are not moving
         
         while(!stationaryBalls){
@@ -101,12 +102,12 @@ public class Environment : MonoBehaviour
                     stationaryBalls = false;
                 }
                 else{
-                    
+                    /*
                     if(ball.CompareTag("WhiteBall") && !checkedWhiteBall){
                         whiteBallControls.CheckIfItHitReward();
                         checkedWhiteBall = true;
                     }
-
+                    */
                     rb.velocity = Vector2.zero;
                     rb.angularVelocity = 0f;
                 }
@@ -230,7 +231,7 @@ public class Environment : MonoBehaviour
     }
 
     // Method to process data received from the Server GameObject
-    public void ProcessReceivedData((float, float) receivedAction)
+    public void ProcessReceivedData((float, float, float) receivedAction)
     {
         //Debug.Log("ProcessReceivedData...");
         action = receivedAction;
@@ -275,7 +276,8 @@ public class Environment : MonoBehaviour
         return state;
     }
 
-    public void TakeAction((float, float) action){
+    public void TakeAction((float, float, float) action){
+        Debug.Log(action);
         newActionRec = true;
         //Debug.Log(action);
         updatedState = false;

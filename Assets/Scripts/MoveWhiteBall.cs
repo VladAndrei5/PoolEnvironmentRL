@@ -39,7 +39,7 @@ public class MoveWhiteBall : MonoBehaviour
         // Create and return the direction vector
         return new Vector2(x, y);
     }
-
+    /*
     private void OnCollisionEnter2D(Collision2D collision)
     {
         // Check if the collided object has the "ball" tag.
@@ -65,10 +65,15 @@ public class MoveWhiteBall : MonoBehaviour
             env.UpdateReward(env.rewardPerNotHittingBall);
         }
     }
+    */
 
-    public void MoveBall(float angle, float velocity){
+    public void MoveBall(float xCord, float yCord, float velocity){
+        //float angleRadians = Mathf.Atan2(yCord, xCord);
+        float wbPositionX = transform.position.x;
+        float wbPositionY = transform.position.y;
         firstHit = true;
-        Vector2 direction = AngleToDirection(angle);
+        //Vector2 direction = AngleToDirection(angle);
+        Vector2 direction = new Vector2(xCord - wbPositionX, yCord - wbPositionY);
         //Debug.Log(direction);
         Vector2 force = direction.normalized * velocity;
         rb.AddForce(force, ForceMode2D.Impulse);

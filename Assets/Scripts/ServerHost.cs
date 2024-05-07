@@ -98,10 +98,11 @@ public class ServerHost : MonoBehaviour
                     //Debug.Log(instructions);
                     float instruction1 = float.Parse(instructions[1]);
                     float instruction2 = float.Parse(instructions[2]);
+                    float instruction3 = float.Parse(instructions[3]);
                     //Debug.Log(instruction1);
                     //Debug.Log(instruction2);
                     // Execute instructions
-                    env.TakeAction((instruction1, instruction2));
+                    env.TakeAction((instruction1, instruction2, instruction3));
 
                     // Wait until the state is updated
                     while (!env.IsStateUpdated())

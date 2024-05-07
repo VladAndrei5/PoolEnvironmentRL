@@ -27,7 +27,7 @@ def receive_state(s):
 
 def send_instruction(s, instruction):
     check_wait(s)
-    s.sendall(f"INSTRUCTION,{instruction[0]},{instruction[1]}".encode())
+    s.sendall(f"INSTRUCTION,{instruction[0]},{instruction[1]},{instruction[2]}".encode())
     #print(f"Sent instruction: {instruction}")
     
 def reset_env(s):
@@ -55,7 +55,8 @@ def main():
                     state, reward, terminal = receive_state(s)
     
             else:
-                instruction = (2, 1)  # Replace with your actual instruction values
+                instruction = (5, 0, 1)  # Replace with your actual instruction values
+                print(instruction)
                 send_instruction(s, instruction)
                 state, reward, terminal = receive_state(s)
                 if terminal == True:

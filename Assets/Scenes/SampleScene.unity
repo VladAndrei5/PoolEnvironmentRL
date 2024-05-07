@@ -496,6 +496,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   direction: {x: 1, y: 0.02}
   initialVelocity: 10
+  env: {fileID: 0}
 --- !u!114 &77666569
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -766,7 +767,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!58 &277458732
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -871,7 +872,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_Sprite: {fileID: -2413806693520163455, guid: a86470a33a6bf42c4b3595704624658b, type: 3}
-  m_Color: {r: 0.61006284, g: 0.46618003, b: 0.46618003, a: 1}
+  m_Color: {r: 0.998996, g: 1, b: 0, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -908,7 +909,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 91a9b469067a3474cae3d327138a39b3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ballColour: 2
+  ballColour: 1
   env: {fileID: 807302726}
 --- !u!1 &351797839
 GameObject:
@@ -2092,7 +2093,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!58 &714050880
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -2197,7 +2198,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_Sprite: {fileID: -2413806693520163455, guid: a86470a33a6bf42c4b3595704624658b, type: 3}
-  m_Color: {r: 1, g: 1, b: 0, a: 1}
+  m_Color: {r: 0.998996, g: 1, b: 0, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -2606,6 +2607,9 @@ MonoBehaviour:
   - {fileID: 1073322383}
   - {fileID: 1490307042}
   - {fileID: 1169489786}
+  - {fileID: 1779961565}
+  - {fileID: 277458731}
+  - {fileID: 714050879}
   playerNumbText: {fileID: 254384068}
   state: []
   currentPlayerColour: 1
@@ -2615,6 +2619,9 @@ MonoBehaviour:
   rewardPerWin: 100
   rewardPerLose: -100
   rewardPerSkipTurn: -2
+  rewardPerHittingCorrectBall: 3
+  rewardPerHittingWrongBall: -3
+  rewardPerNotHittingBall: -2
   updatedState: 0
 --- !u!4 &807302727
 Transform:
@@ -3496,7 +3503,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_Sprite: {fileID: -2413806693520163455, guid: a86470a33a6bf42c4b3595704624658b, type: 3}
-  m_Color: {r: 1, g: 0, b: 0, a: 1}
+  m_Color: {r: 1, g: 0.9990684, b: 0, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -3533,7 +3540,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 91a9b469067a3474cae3d327138a39b3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ballColour: 0
+  ballColour: 1
   env: {fileID: 807302726}
 --- !u!1 &1246723861
 GameObject:
@@ -4499,7 +4506,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!58 &1779961566
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -4604,7 +4611,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_Sprite: {fileID: -2413806693520163455, guid: a86470a33a6bf42c4b3595704624658b, type: 3}
-  m_Color: {r: 1, g: 0, b: 0, a: 1}
+  m_Color: {r: 0.998996, g: 1, b: 0, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -4641,7 +4648,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 91a9b469067a3474cae3d327138a39b3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ballColour: 0
+  ballColour: 1
   env: {fileID: 807302726}
 --- !u!1 &1850156173
 GameObject:
