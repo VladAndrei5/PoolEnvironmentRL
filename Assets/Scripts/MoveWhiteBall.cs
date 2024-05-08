@@ -6,7 +6,7 @@ public class MoveWhiteBall : MonoBehaviour
 {
     public Vector2 direction;
     public float initialVelocity;
-    private Vector2 whiteBallSpawnPosition = new Vector2(-5.98f, 0f);
+    private Vector2 whiteBallSpawnPosition = new Vector2(-5f, -1.5f);
 
     private Rigidbody2D rb;
 

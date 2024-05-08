@@ -26,7 +26,7 @@ state_dim = 4
 act_dim = 3
 
 #Limits the number of time steps per episode to avoid hovering 
-step_limit=300
+step_limit=150
 
 #Action in pool is: angle between 0 and 360, strength between 0 and 1
 action_limit = [13, 7, 1]
@@ -50,8 +50,8 @@ critic_lr = 0.0003
 tau = 0.001
 
 epoch = 1000
-time_steps = epoch * 8
-test_episodes = 2
+time_steps = epoch * 6
+test_episodes = 10
 initial_steps = 300
 buffer_size = 1000000
 batch_size = 256
@@ -61,7 +61,6 @@ if start_from_check_point:
     initial_steps = 0
     
 def normalize_state(state):
-    #print(state)
     min_val = -20
     max_val = 20
     state[0] = (state[0] - min_val) / (max_val - state[0])
@@ -79,7 +78,6 @@ def check_wait(s):
             waiting = True
         else:
             waiting = False 
-            #print("stop waiting")
 
 def receive_state(s):
     check_wait(s)
@@ -93,41 +91,22 @@ def receive_state(s):
         terminal = False
     else:
         terminal = True
-    # for some reason the terminal is reversed
     s.sendall("RECIEVEDSTATE".encode())    
-    #print(f"Received response: state={state}, reward={reward}, terminal={terminal}")
     return state, reward, terminal        
 
 def send_instruction(s, instruction):
-    #print("sending instruction")
     check_wait(s)
-    #s.sendall(f"{instruction[0]},{instruction[1]}".encode())
     s.sendall(f"INSTRUCTION,{instruction[0]},{instruction[1]},{instruction[2]}".encode())
-    #print(f"Sent instruction: {instruction}")
     
 def reset_env(s):
     check_wait(s)
     s.sendall("RESET".encode())
-    #print("Sent Reset command")
 
 
-# Create a directory for TensorBoard data
-# Setting up logging tools
 writer = SummaryWriter('runs/pool_experiment_' + datetime.now().strftime("%Y%m%d-%H%M%S"))
 csv_file = open('training_metrics.csv', 'a', newline='')
 csv_writer = csv.writer(csv_file)
 csv_writer.writerow(['Episode', 'TotalReward'])
-
-"""def save_checkpoint(actor, critic1, critic2, actor_optimizer, critic1_optimizer, critic2_optimizer, filename):
-    torch.save({
-        'actor_state_dict': actor.state_dict(),
-        'critic1_state_dict': critic1.state_dict(),
-        'critic2_state_dict': critic2.state_dict(),
-        'actor_optimizer_state_dict': actor_optimizer.state_dict(),
-        'critic1_optimizer_state_dict': critic1_optimizer.state_dict(),
-        'critic2_optimizer_state_dict': critic2_optimizer.state_dict(),
-    }, 'models.pth')"""
-
 
 import os
 
@@ -151,7 +130,7 @@ def save_checkpoint(actor, critic, actor_optimizer, critic_optimizer, episode):
     print(f"Checkpoint saved to {filepath}")
 
 def load_checkpoint(actor, critic, actor_optimizer, critic_optimizer, filename):
-    # Load the checkpoint
+
     checkpoint = torch.load(filename)
 
     episode = checkpoint['episode']
@@ -165,13 +144,8 @@ def load_checkpoint(actor, critic, actor_optimizer, critic_optimizer, filename):
     return episode
 #######
 
-
-# device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-# print("Using {}".format(device))
-
 #If you see Using cuda then gpu is used
 ## Global variables
-
 class Actor(nn.Module):
     def __init__(self, state_dim, action_dim, hidden_size=256):
         super(Actor, self).__init__()
@@ -186,31 +160,15 @@ class Actor(nn.Module):
     def forward(self, x):
         x = F.relu(self.fc1(x))
         x = F.relu(self.fc2(x))
-        
-        #Use tanh for mean so it is between -1 and 1
-        
-       # action = torch.tanh(self.mean_fc(x))
-       
-        action_sigmoid = torch.tanh(0.1 * self.mean_fc(x))
-       
-        
-        #Make sure the action is in the action limit by transforming it with tanh(which is between -1 and 1)
-        #and multiplying with the action_limit
-        #!!! This assumes that the action is in between -action_limit and action_limit
-        
-        # action_sigmoid = torch.sigmoid(action)
-        
-        # action_sigmoid[0] = action_limit[0] * action_sigmoid[0]
-        # action_sigmoid[1] = action_limit[1] * action_sigmoid[1]
+        action_tan = torch.tanh(0.1 * self.mean_fc(x))
 
-        return action_sigmoid
+        return action_tan
     # , log_prob
     
     def clip_gradients(self, clip_value):
         
         # Added this function because the gradients would explode and make the actor network return NaN
         # This is used to clip the gradients between given values
-        
         for param in self.parameters():
             if param.grad is not None:
                 param.grad.data.clamp_(-clip_value, clip_value)
@@ -272,8 +230,6 @@ def DDPG():
     #Define actor and critics
     actor = Actor(state_dim, act_dim)#
     critic = Critic(state_dim, act_dim)#
-    # critic2 = Critic(state_dim, act_dim)#
-    #.to(device)
     #Define targets (for SAC only the critics have targets)
     target_critic = deepcopy(critic)#
     target_actor = deepcopy(actor)
@@ -285,26 +241,12 @@ def DDPG():
     # critic2_optimizer = torch.optim.Adam(critic2.parameters(), lr=learning_rate)
     
     def get_action(state):
-        # action= actor(torch.as_tensor(state, dtype=torch.float32))
-        # action = action.detach().numpy()
-        # action[0] = action_limit[0] * action[0]
-        # action[1] = action_limit[1] * action[1]
-        # return action
         action = actor(torch.as_tensor(state, dtype=torch.float32))
     
         # Add Gaussian noise to the mean action
         noise = torch.randn_like(action) * noise_std
         noisy_action = torch.clamp(action + noise, -1, 1)  # Ensure actions are within [-1, 1]
-        #print("hi")
-        #print(action)
 
-        
-
-        # Transform action[0] to be between 0 and 360
-        # noisy_action[0] = (noisy_action[0] + 1) * 180
-        
-        # Transform action[1] to be between 0 and 1
-        # noisy_action[1] = (noisy_action[1] + 1) / 2
         noisy_action = noisy_action.detach().numpy()
         noisy_action[0] = action_limit[0] * noisy_action[0]
         noisy_action[1] = action_limit[1] * noisy_action[1]
@@ -314,33 +256,15 @@ def DDPG():
         return noisy_action
     
     def get_action_test(state):
-        # action= actor(torch.as_tensor(state, dtype=torch.float32))
-        # action = action.detach().numpy()
-        # action[0] = action_limit[0] * action[0]
-        # action[1] = action_limit[1] * action[1]
-        # return action
         action = actor(torch.as_tensor(state, dtype=torch.float32))
-    
-        # Add Gaussian noise to the mean action
-        noise = torch.randn_like(action) * noise_std
-        #noisy_action = torch.clamp(action + noise, -1, 1)  # Ensure actions are within [-1, 1]
-        #print("hi")
-        #print(action)
-        noisy_action = action
-        
 
-        # Transform action[0] to be between 0 and 360
-        # noisy_action[0] = (noisy_action[0] + 1) * 180
-        
-        # Transform action[1] to be between 0 and 1
-        # noisy_action[1] = (noisy_action[1] + 1) / 2
-        noisy_action = noisy_action.detach().numpy()
-        noisy_action[0] = action_limit[0] * noisy_action[0]
-        noisy_action[1] = action_limit[1] * noisy_action[1]
-        noisy_action[2] = 1/(1 + np.exp(-noisy_action[2]))
+        action = action.detach().numpy()
+        action[0] = action_limit[0] * action[0]
+        action[1] = action_limit[1] * action[1]
+        action[2] = 1/(1 + np.exp(-action[2]))
 
         
-        return noisy_action
+        return action
     
     #This function is used to update the actor and the critics
     def step(state, action, reward, next_state, done):
