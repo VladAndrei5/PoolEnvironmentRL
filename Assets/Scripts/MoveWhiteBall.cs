@@ -53,33 +53,6 @@ public class MoveWhiteBall : MonoBehaviour
         return new Vector2(x, y);
     }
     
-    private void OnCollisionEnter2D(Collision2D collision)
-    {
-        // Check if the collided object has the "ball" tag.
-        if (collision.gameObject.CompareTag("Ball"))
-        {
-            if(firstHit){
-            
-                BallScript ball = collision.gameObject.GetComponent<BallScript>();
-                if(ball.GetBallColour() == env.currentPlayerColour){
-                    env.UpdateReward(env.rewardPerHittingCorrectBall);
-                }
-                else{
-                    env.UpdateReward(env.rewardPerHittingWrongBall);
-                }
-                firstHit = false;
-            }
-        }
-    }
-
-    public void CheckIfItHitReward(){
-        //if it did not hit anything bad
-        if(firstHit){
-            //env.UpdateReward(env.rewardPerNotHittingBall);
-        }
-    }
-    
-
     public void MoveBall(float xCord, float yCord, float velocity){
         //float angleRadians = Mathf.Atan2(yCord, xCord);
         float wbPositionX = transform.position.x;

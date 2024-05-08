@@ -22,7 +22,6 @@ public class Environment : MonoBehaviour
  
     private bool stationaryBalls = true;
 
-    public int currentPlayer = 0;
     public float reward;
     public int currentState;
 
@@ -33,17 +32,7 @@ public class Environment : MonoBehaviour
     public TextMeshProUGUI playerNumbText;
 
     public float[] state;
-    public int currentPlayerColour;
-
-    public float rewardPerWrongBall = -10f;
-    public float rewardPerCorrectBall = 10f;
-    public float rewardPerBlackBall = -200f;
-    public float rewardPerWin = 100f;
-    public float rewardPerLose = -100f;
-    public float rewardPerSkipTurn = -2f;
-    public float rewardPerHittingCorrectBall = 3f;
-    public float rewardPerHittingWrongBall = -3f;
-    public float rewardPerNotHittingBall = -2f;
+    public float rewardPerWhiteBall = -2f;
     public float rewardPerTimeStep = -1f;
 
     public bool updatedState;
@@ -67,7 +56,6 @@ public class Environment : MonoBehaviour
         //current player is Yellow
         //TODO change this
         updatedState = false;
-        currentPlayerColour = 1;
         stationaryBalls = true;
         gameOver = false;
         changePlayer = false;
@@ -104,12 +92,6 @@ public class Environment : MonoBehaviour
                     stationaryBalls = false;
                 }
                 else{
-                    
-                    if(ball.CompareTag("WhiteBall") && checkedWhiteBall == false){
-                        whiteBallControls.CheckIfItHitReward();
-                        checkedWhiteBall = true;
-                    }
-                    
                     rb.velocity = Vector2.zero;
                     rb.angularVelocity = 0f;
                 }
@@ -157,99 +139,13 @@ public class Environment : MonoBehaviour
 
             stateList.Add(ballScript.GetPositionX());
             stateList.Add(ballScript.GetPositionY());
-            //stateList.Add((float)ballScript.GetBallColour());
-            stateList.Add((float)ballScript.GetBallActive());
-
-
         }
-        //stateList.Add(22f);
-        //stateList.Add(12f);
 
-
-
-
-        /*
-        stateList.Add(-11f);
-        stateList.Add(-6f);
-
-        stateList.Add(-11f);
-        stateList.Add(6f);
-
-        stateList.Add(0f);
-        stateList.Add(-6f);
-
-        stateList.Add(0f);
-        stateList.Add(6f);
-
-        stateList.Add(11f);
-        stateList.Add(-6f);
-
-        stateList.Add(11f);
-        stateList.Add(6f);
-        */
-
-
-        //stateList.Add(currentPlayerColour);
-        //stateList.Add(currentPlayerColour);
 
         state = stateList.ToArray();
         //Debug.Log("reward " + reward);
 
         updatedState = true;
-    }
-
-    public bool CheckIfRedWon(){
-
-        if(gameOver){
-            return false;
-        }
-
-        bool didWin = true;
-        foreach (GameObject ball in ballsArray){
-            BallScript ballScript = ball.GetComponent<BallScript>();
-            if(ballScript.GetBallColour() == 0 && ballScript.GetBallActive() == 1){
-                didWin = false;
-                break;
-            }
-        }
-
-        if(didWin && currentPlayerColour == 0){
-            UpdateReward(rewardPerWin);
-            gameOver = true;
-        }
-        else if(didWin){
-            UpdateReward(rewardPerLose);
-            gameOver = true;
-        }
-
-        return didWin;
-    }
-
-    public bool CheckIfYellowWon(){
-        if(gameOver){
-            return false;
-        }
-
-        bool didWin = true;
-        foreach (GameObject ball in ballsArray){
-            BallScript ballScript = ball.GetComponent<BallScript>();
-            if(ballScript.GetBallColour() == 1 && ballScript.GetBallActive() == 1){
-                didWin = false;
-                break;
-            }
-        }
-
-        if(didWin && currentPlayerColour == 1){
-            //Debug.Log("won");
-            UpdateReward(rewardPerWin);
-            gameOver = true;
-        }
-        else if(didWin){
-            UpdateReward(rewardPerLose);
-            gameOver = true;
-        }
-
-        return didWin;
     }
 
     public void UpdateReward(float newReward){
@@ -258,13 +154,6 @@ public class Environment : MonoBehaviour
 
     public void ResetReward(){
         reward = 0f;
-    }
-
-    // Method to process data received from the Server GameObject
-    public void ProcessReceivedData((float, float, float) receivedAction)
-    {
-        //Debug.Log("ProcessReceivedData...");
-        action = receivedAction;
     }
 
     public void ResetEnv(){
@@ -277,7 +166,7 @@ public class Environment : MonoBehaviour
             BallScript ballScript = ball.GetComponent<BallScript>();
             ballScript.ResetBall();
         }
-        currentPlayerColour = 1;
+
         stationaryBalls = true;
         changePlayer = false;
         playerNumbText.text = "1";

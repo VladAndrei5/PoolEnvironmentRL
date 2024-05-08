@@ -270,8 +270,8 @@ class DDPG:
         plt.show()
             
             
-no_balls = 3
-state_per_ball = 3
+no_balls = 1
+state_per_ball = 2
 additional_states = 0
 
 

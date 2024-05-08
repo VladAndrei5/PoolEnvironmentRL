@@ -105,13 +105,13 @@ print("Using {}".format(device))
 #If you see Using cuda then gpu is used
 ## Global variables
 
-no_balls = 7
+no_balls = 1
 
-state_dim = no_balls * 3
+state_dim = no_balls * 2
 act_dim = 3
 
 #Limits the number of time steps per episode to avoid hovering 
-step_limit=250
+step_limit=1500
 
 #Action in pool is: angle between 0 and 360, strength between 0 and 1
 action_limit = [11, 6, 1]
@@ -131,10 +131,10 @@ learning_rate=0.001
 #Used for soft update of the target critics
 tau = 0.01
 
-epoch = 500
-time_steps = epoch * 15
-test_episodes = 3
-initial_steps = 1000
+epoch = 2000
+time_steps = epoch * 500
+test_episodes = 5
+initial_steps = 500
 buffer_size = 1000000
 batch_size = 256
 
@@ -403,7 +403,7 @@ def SAC():
         step_counter=0
         episode = 0
         host = '127.0.0.1'
-        port = 4444
+        port = 8888
         s.connect((host, port))
         print("Connected to the server.")
         state = reset(s)

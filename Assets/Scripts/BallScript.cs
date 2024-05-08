@@ -20,8 +20,10 @@ public class BallScript : MonoBehaviour
         originalPosition = new Vector2(transform.position.x, transform.position.y);
     }
 
+    
     public void ResetBall(){
-        transform.position = new Vector2(Random.Range(-9.8f, 9.8f), Random.Range(-4.8f, 4.8f));
+        //transform.position = new Vector2(Random.Range(-9.8f, 9.8f), Random.Range(-4.8f, 4.8f));
+        transform.position = new Vector3(originalPosition.x, originalPosition.y, transform.position.z);
         isActive = true;
         isMoving = false;
         Rigidbody2D rb = GetComponent<Rigidbody2D>();
@@ -31,6 +33,7 @@ public class BallScript : MonoBehaviour
         GetComponent<CircleCollider2D>().enabled = true;
         GetComponent<Rigidbody2D>().simulated = true;
     }
+    
 
     /*
     public void ResetBall(){
@@ -55,6 +58,8 @@ public class BallScript : MonoBehaviour
         GetComponent<CircleCollider2D>().enabled = false;
         GetComponent<Rigidbody2D>().simulated = false;
 
+        env.gameOver = true;
+
         //DONT FORGET MAYBE TO REMOVE
         //transform.position = new Vector3(0f, 100f, 0f);
     }
@@ -67,28 +72,9 @@ public class BallScript : MonoBehaviour
 
             //Give rewards if ball falls in pocket based on its colour 
             if(isActive){
-                if( ballColour == 2){
-                    env.UpdateReward(env.rewardPerBlackBall);
-                    env.gameOver = true;
-                }
-                else if(ballColour == 3){
-                    env.UpdateReward(env.rewardPerSkipTurn);
-                    env.ResetWhiteBall();
-                }
-                else if(env.currentPlayerColour == ballColour){
-                    env.UpdateReward(env.rewardPerCorrectBall);
-                    DisableBall();
-                    env.CheckIfRedWon();
-                    env.CheckIfYellowWon();
-                }
-                else if(env.currentPlayerColour != ballColour){
-                    env.UpdateReward(env.rewardPerWrongBall);
-                    DisableBall();
-                    env.CheckIfRedWon();
-                    env.CheckIfYellowWon();
-                    //env.changePlayer = true;
-                }
-                
+                env.UpdateReward(env.rewardPerWhiteBall);
+                DisableBall();
+                env.gameOver = true;
             }
 
         }
