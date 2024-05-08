@@ -51,7 +51,7 @@ tau = 0.001
 
 epoch = 1000
 time_steps = epoch * 6
-test_episodes = 10
+test_episodes = 1
 initial_steps = 50
 buffer_size = 1000000
 batch_size = 256
