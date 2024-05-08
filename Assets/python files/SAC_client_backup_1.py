@@ -105,16 +105,15 @@ print("Using {}".format(device))
 #If you see Using cuda then gpu is used
 ## Global variables
 
-no_balls = 1
 
-state_dim = no_balls * 2
+state_dim = 4
 act_dim = 3
 
 #Limits the number of time steps per episode to avoid hovering 
-step_limit=1500
+step_limit=600
 
 #Action in pool is: angle between 0 and 360, strength between 0 and 1
-action_limit = [11, 6, 1]
+action_limit = [12, 7, 1]
 
 gamma = 0.99
 
@@ -131,10 +130,10 @@ learning_rate=0.001
 #Used for soft update of the target critics
 tau = 0.01
 
-epoch = 2000
-time_steps = epoch * 500
-test_episodes = 5
-initial_steps = 500
+epoch = 1000
+time_steps = epoch * 5
+test_episodes = 1
+initial_steps = 3000
 buffer_size = 1000000
 batch_size = 256
 

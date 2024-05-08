@@ -165,6 +165,8 @@ public class Environment : MonoBehaviour
             stateList.Add(ballScript.GetPositionY());
         }
 
+        stateList.Add(hole.transform.position.x);
+        stateList.Add(hole.transform.position.y);
 
         state = stateList.ToArray();
         //Debug.Log("reward " + reward);

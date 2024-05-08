@@ -1571,7 +1571,7 @@ MonoBehaviour:
   serverhost: {fileID: 868791561}
   whiteBallControls: {fileID: 77666568}
   angle: 1
-  maxVelocity: 4
+  maxVelocity: 8
   gameSpeed: 100
   reward: 0
   currentState: 0
@@ -1580,12 +1580,12 @@ MonoBehaviour:
   - {fileID: 77666563}
   playerNumbText: {fileID: 254384068}
   state: []
-  rewardPerWhiteBall: 10
-  rewardPerTimeStep: -0.02
+  rewardPerWhiteBall: 100
+  rewardPerTimeStep: -0.1
   hole: {fileID: 1162736982}
   whiteBall: {fileID: 77666563}
-  maxDistance: 40
-  rewardPerProximity: 1
+  maxDistance: 20
+  rewardPerProximity: 0.2
   updatedState: 0
 --- !u!4 &807302727
 Transform:
