@@ -283,7 +283,7 @@ gamma = 0.99  # Discount factor
 tau = 0.005  # Soft update factor for target networks
 alpha = 0.001  # Added alpha parameter for soft update
 num_episodes = 200  # Number of training episodes
-max_steps = 1000  # Maximum number of steps per episode
+max_steps = 5000  # Maximum number of steps per episode
 test_interval = 50  # Number of episodes between each test
 num_test_episodes = 2  # Number of episodes to run during each test
 

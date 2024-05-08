@@ -52,6 +52,14 @@ public class MoveWhiteBall : MonoBehaviour
         // Create and return the direction vector
         return new Vector2(x, y);
     }
+
+    public float GetPositionX(){
+        return transform.position.x;
+    }
+
+    public float GetPositionY(){
+        return transform.position.y;
+    }
     
     public void MoveBall(float xCord, float yCord, float velocity){
         //float angleRadians = Mathf.Atan2(yCord, xCord);

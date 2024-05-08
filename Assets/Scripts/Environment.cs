@@ -22,24 +22,47 @@ public class Environment : MonoBehaviour
  
     private bool stationaryBalls = true;
 
-    public float reward;
+    [SerializeField] 
+    private float reward;
     public int currentState;
 
     public bool gameOver = false;
-    public bool changePlayer = false;
     public GameObject[] ballsArray;
 
     public TextMeshProUGUI playerNumbText;
 
     public float[] state;
-    public float rewardPerWhiteBall = -2f;
+    public float rewardPerWhiteBall = 10f;
     public float rewardPerTimeStep = -1f;
+    public GameObject hole; // Reference to the second object.
+    public GameObject whiteBall;
+    public float maxDistance = 1f; // Threshold distance for maximum reward.
+    public float rewardPerProximity = 1f; // Maximum reward for proximity.
 
     public bool updatedState;
 
     private bool newActionRec = false;
     //!!!!!!!!!!!!!!!!!!!!
     //0 is red , 1 is yellow, 2 is black, 3 is white
+
+
+    public void RewardProximity(){
+        float distance = Vector3.Distance(whiteBall.transform.position, hole.transform.position);
+        float rewardProx;
+
+        // If within the max distance, calculate the reward proportionally.
+        if (distance <= maxDistance)
+        {
+            rewardProx = rewardPerProximity * (1f - distance / maxDistance);
+        }
+        else
+        {
+            // If outside the max distance, reward is zero.
+            rewardProx = 0f;
+        }
+
+        UpdateReward(rewardProx);
+    }
 
     private void OnValidate()
     {
@@ -58,7 +81,6 @@ public class Environment : MonoBehaviour
         updatedState = false;
         stationaryBalls = true;
         gameOver = false;
-        changePlayer = false;
         playerNumbText.text = "1";
         playerNumbText.color = Color.red;
         ResetEnv();
@@ -71,6 +93,7 @@ public class Environment : MonoBehaviour
         updatedState = false;
         ResetReward();
         UpdateReward(rewardPerTimeStep);
+        
 
         stationaryBalls = false;
         float randomAngleAdd = 0f;
@@ -98,6 +121,7 @@ public class Environment : MonoBehaviour
             }
             yield return null;
         }
+        RewardProximity();
         UpdateState();
         yield break;
     }
@@ -168,10 +192,6 @@ public class Environment : MonoBehaviour
         }
 
         stationaryBalls = true;
-        changePlayer = false;
-        playerNumbText.text = "1";
-        playerNumbText.color = Color.red;
-        //Debug.Log("Enviornment Reset");
         UpdateState();
     }
 
