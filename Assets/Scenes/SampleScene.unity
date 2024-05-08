@@ -890,7 +890,7 @@ MonoBehaviour:
   - {fileID: 77666563}
   playerNumbText: {fileID: 254384068}
   state: []
-  rewardPerWhiteBall: 30
+  rewardPerWhiteBall: 100
   rewardPerTimeStep: -1
   hole: {fileID: 1162736982}
   whiteBall: {fileID: 77666563}
@@ -1177,7 +1177,7 @@ CircleCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
   m_Offset: {x: 0, y: 0}

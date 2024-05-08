@@ -219,7 +219,7 @@ public class Environment : MonoBehaviour
     }
 
     public void TakeAction((float, float, float) action){
-        Debug.Log(action);
+        //Debug.Log(action);
         newActionRec = true;
         //Debug.Log(action);
         updatedState = false;
