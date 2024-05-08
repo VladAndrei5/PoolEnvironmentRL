@@ -9,6 +9,7 @@ from torch.distributions.normal import Normal
 import matplotlib.pyplot as plt
 from IPython import display
 from gym.wrappers import TimeLimit
+from torch.nn import BatchNorm1d
 
 ######
 import csv
@@ -21,14 +22,14 @@ start_from_ep = 54
 
 no_balls = 4
 
-state_dim = no_balls * 4 + 1
-act_dim = 2
+state_dim = 4
+act_dim = 3
 
 #Limits the number of time steps per episode to avoid hovering 
 step_limit=150
 
 #Action in pool is: angle between 0 and 360, strength between 0 and 1
-action_limit = [360, 1]
+action_limit = [13, 7, 1]
 
 gamma = 0.99
 
@@ -51,13 +52,24 @@ tau = 0.001
 epoch = 1000
 time_steps = epoch * 6
 test_episodes = 10
-initial_steps = 1000
+initial_steps = 50
 buffer_size = 1000000
 batch_size = 256
 noise_std = 0.1
 
 if start_from_check_point:
     initial_steps = 0
+    
+def normalize_state(state):
+    print(state)
+    min_val = -20
+    max_val = 20
+    state[0] = (state[0] - min_val) / (max_val - state[0])
+    state[1] = (state[1] - min_val) / (max_val - state[1])
+    state[2] = (state[2] - min_val) / (max_val - state[2])
+    state[3] = (state[3] - min_val) / (max_val - state[3])
+    
+    return state
 
 def check_wait(s):
     waiting = True
@@ -74,7 +86,8 @@ def receive_state(s):
     data = s.recv(1024).decode()
     parts = data.split(',')
     state = [float(x) for x in parts[:-2]]
-    reward = int(parts[-2])
+    state = normalize_state(state)
+    reward = float(parts[-2])
     terminal = (parts[-1])
     if terminal == "False":
         terminal = False
@@ -89,7 +102,7 @@ def send_instruction(s, instruction):
     #print("sending instruction")
     check_wait(s)
     #s.sendall(f"{instruction[0]},{instruction[1]}".encode())
-    s.sendall(f"INSTRUCTION,{instruction[0]},{instruction[1]}".encode())
+    s.sendall(f"INSTRUCTION,{instruction[0]},{instruction[1]},{instruction[2]}".encode())
     #print(f"Sent instruction: {instruction}")
     
 def reset_env(s):
@@ -165,7 +178,9 @@ class Actor(nn.Module):
         
         #Build the actor neural network
         self.fc1 = nn.Linear(state_dim, hidden_size)
+        self.bn1 = BatchNorm1d(hidden_size)
         self.fc2 = nn.Linear(hidden_size, hidden_size)
+        self.bn2 = BatchNorm1d(hidden_size)
         self.mean_fc = nn.Linear(hidden_size, action_dim)
 
     def forward(self, x):
@@ -173,12 +188,18 @@ class Actor(nn.Module):
         x = F.relu(self.fc2(x))
         
         #Use tanh for mean so it is between -1 and 1
-        action = torch.tanh(self.mean_fc(x))
+        
+       # action = torch.tanh(self.mean_fc(x))
+       
+        action_sigmoid = torch.tanh(0.1 * self.mean_fc(x))
+       
         
         #Make sure the action is in the action limit by transforming it with tanh(which is between -1 and 1)
         #and multiplying with the action_limit
         #!!! This assumes that the action is in between -action_limit and action_limit
-        action_sigmoid = torch.sigmoid(action)
+        
+        # action_sigmoid = torch.sigmoid(action)
+        
         # action_sigmoid[0] = action_limit[0] * action_sigmoid[0]
         # action_sigmoid[1] = action_limit[1] * action_sigmoid[1]
 
@@ -200,7 +221,9 @@ class Critic(nn.Module):
         
         #Build the critic neural network
         self.fc1 = nn.Linear(state_dim + action_dim, hidden_size)
+        self.bn1 = BatchNorm1d(hidden_size)
         self.fc2 = nn.Linear(hidden_size, hidden_size)
+        self.bn2 = BatchNorm1d(hidden_size)
         self.fc3 = nn.Linear(hidden_size, 1)
 
     def forward(self, state, action):
@@ -272,14 +295,52 @@ def DDPG():
         # Add Gaussian noise to the mean action
         noise = torch.randn_like(action) * noise_std
         noisy_action = torch.clamp(action + noise, -1, 1)  # Ensure actions are within [-1, 1]
+        print("hi")
+        #print(action)
+
+        
 
         # Transform action[0] to be between 0 and 360
-        noisy_action[0] = (noisy_action[0] + 1) * 180
+        # noisy_action[0] = (noisy_action[0] + 1) * 180
         
         # Transform action[1] to be between 0 and 1
-        noisy_action[1] = (noisy_action[1] + 1) / 2
+        # noisy_action[1] = (noisy_action[1] + 1) / 2
+        noisy_action = noisy_action.detach().numpy()
+        noisy_action[0] = action_limit[0] * noisy_action[0]
+        noisy_action[1] = action_limit[1] * noisy_action[1]
+        noisy_action[2] = 1/(1 + np.exp(-noisy_action[2]))
+
         
-        return noisy_action.detach().numpy()
+        return noisy_action
+    
+    def get_action_test(state):
+        # action= actor(torch.as_tensor(state, dtype=torch.float32))
+        # action = action.detach().numpy()
+        # action[0] = action_limit[0] * action[0]
+        # action[1] = action_limit[1] * action[1]
+        # return action
+        action = actor(torch.as_tensor(state, dtype=torch.float32))
+    
+        # Add Gaussian noise to the mean action
+        noise = torch.randn_like(action) * noise_std
+        #noisy_action = torch.clamp(action + noise, -1, 1)  # Ensure actions are within [-1, 1]
+        print("hi")
+        #print(action)
+        noisy_action = action
+        
+
+        # Transform action[0] to be between 0 and 360
+        # noisy_action[0] = (noisy_action[0] + 1) * 180
+        
+        # Transform action[1] to be between 0 and 1
+        # noisy_action[1] = (noisy_action[1] + 1) / 2
+        noisy_action = noisy_action.detach().numpy()
+        noisy_action[0] = action_limit[0] * noisy_action[0]
+        noisy_action[1] = action_limit[1] * noisy_action[1]
+        noisy_action[2] = 1/(1 + np.exp(-noisy_action[2]))
+
+        
+        return noisy_action
     
     #This function is used to update the actor and the critics
     def step(state, action, reward, next_state, done):
@@ -345,7 +406,7 @@ def DDPG():
             ep_len = 0
             tot_reward = 0
             while not(done or (ep_len == step_limit)):
-                action = get_action(state)
+                action = get_action_test(state)
                 state, reward, done = send_action(s, action)
                 tot_reward += reward
                 ep_len += 1
@@ -354,8 +415,9 @@ def DDPG():
     
     def sample_action():
         action = []
-        for i in range(act_dim):
-            action.append(np.random.uniform(0, action_limit[i]))
+        for i in range(act_dim-1):
+            action.append(np.random.uniform(-action_limit[i], action_limit[i]))
+        action.append(np.random.uniform(-0, action_limit[act_dim-1]))
         return np.asarray(action)
 
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
@@ -375,7 +437,9 @@ def DDPG():
 
 
         for i in range(1,time_steps):
-            
+            if i%epoch == 0:
+                test_agent(s)
+                state = reset(s)
 
             if i < initial_steps:
                 #We want to have 'initial_steps' samples in the replay buffer before we start training, so we use random ones
@@ -388,8 +452,11 @@ def DDPG():
                     #     state = reset(s)
                     # else:
                 action = get_action(state)
+                #print(action)
             # print("Action=", action)
             #Take a step using the action
+            
+            print(i)
 
             next_state, reward, done = send_action(s, action)
             

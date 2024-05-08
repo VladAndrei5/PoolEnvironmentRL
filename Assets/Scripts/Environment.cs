@@ -169,7 +169,8 @@ public class Environment : MonoBehaviour
         stateList.Add(hole.transform.position.y);
 
         state = stateList.ToArray();
-        //Debug.Log("reward " + reward);
+        Debug.Log("reward " + reward);
+    
 
         updatedState = true;
     }

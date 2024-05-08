@@ -1571,7 +1571,7 @@ MonoBehaviour:
   serverhost: {fileID: 868791561}
   whiteBallControls: {fileID: 77666568}
   angle: 1
-  maxVelocity: 8
+  maxVelocity: 10
   gameSpeed: 100
   reward: 0
   currentState: 0
@@ -1580,12 +1580,12 @@ MonoBehaviour:
   - {fileID: 77666563}
   playerNumbText: {fileID: 254384068}
   state: []
-  rewardPerWhiteBall: 100
-  rewardPerTimeStep: -0.1
+  rewardPerWhiteBall: 30
+  rewardPerTimeStep: -1
   hole: {fileID: 1162736982}
   whiteBall: {fileID: 77666563}
-  maxDistance: 20
-  rewardPerProximity: 0.2
+  maxDistance: 10
+  rewardPerProximity: 0.5
   updatedState: 0
 --- !u!4 &807302727
 Transform:
@@ -2174,8 +2174,8 @@ Transform:
   m_GameObject: {fileID: 1162736982}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: -6.05, z: 0}
-  m_LocalScale: {x: 4.5083, y: 1, z: 1}
+  m_LocalPosition: {x: 0, y: -5.22, z: 0}
+  m_LocalScale: {x: 2.479565, y: 1.7, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -2327,7 +2327,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1365224493
 Transform:
   m_ObjectHideFlags: 0

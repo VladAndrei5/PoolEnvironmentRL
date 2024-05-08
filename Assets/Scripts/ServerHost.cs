@@ -28,7 +28,7 @@ public class ServerHost : MonoBehaviour
     }
 
     private void SendStateBack(NetworkStream stream){
-        Debug.Log("sendstateback");
+        //Debug.Log("sendstateback");
         // Get the updated state, reward, and terminal flag
         float[] state = env.GetState();
         float reward = env.GetReward();

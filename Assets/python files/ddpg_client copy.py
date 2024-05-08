@@ -9,11 +9,56 @@ from torch.distributions.normal import Normal
 import matplotlib.pyplot as plt
 from IPython import display
 from gym.wrappers import TimeLimit
+from torch.nn import BatchNorm1d
 
 ######
 import csv
 from torch.utils.tensorboard import SummaryWriter
 from datetime import datetime
+
+
+start_from_check_point = False
+start_from_ep = 54
+
+no_balls = 4
+
+state_dim = 4
+act_dim = 3
+
+#Limits the number of time steps per episode to avoid hovering 
+step_limit=150
+
+#Action in pool is: angle between 0 and 360, strength between 0 and 1
+action_limit = [13, 7, 1]
+
+gamma = 0.99
+
+#This helps with exploration vs eploitation
+"""alpha_max = 0.4
+alpha_min=0.01
+alpha=alpha_max
+
+learning_rate_max = 0.001
+learning_rate_min=0.0001
+learning_rate=learning_rate_max"""
+alpha=0.1
+# learning_rate=0.0001
+
+actor_lr = 0.0002
+critic_lr = 0.0003
+#Used for soft update of the target critics
+tau = 0.001
+
+epoch = 1000
+time_steps = epoch * 6
+test_episodes = 3
+initial_steps = 300
+buffer_size = 1000000
+batch_size = 256
+noise_std = 0.1
+
+if start_from_check_point:
+    initial_steps = 0
 
 def check_wait(s):
     waiting = True
@@ -30,6 +75,7 @@ def receive_state(s):
     data = s.recv(1024).decode()
     parts = data.split(',')
     state = [float(x) for x in parts[:-2]]
+    state = normalize_state(state)
     reward = float(parts[-2])
     terminal = (parts[-1])
     if terminal == "False":
@@ -44,7 +90,6 @@ def receive_state(s):
 def send_instruction(s, instruction):
     #print("sending instruction")
     check_wait(s)
-    #print(instruction)
     #s.sendall(f"{instruction[0]},{instruction[1]}".encode())
     s.sendall(f"INSTRUCTION,{instruction[0]},{instruction[1]},{instruction[2]}".encode())
     #print(f"Sent instruction: {instruction}")
@@ -53,12 +98,20 @@ def reset_env(s):
     check_wait(s)
     s.sendall("RESET".encode())
     #print("Sent Reset command")
+    
+def normalize_state(state):
+    min_val = -20
+    max_val = 20
+    state[0] = (state[0] - min_val) / (max_val - state[0])
+    state[1] = (state[1] - min_val) / (max_val - state[1])
+    state[2] = (state[2] - min_val) / (max_val - state[2])
+    state[3] = (state[3] - min_val) / (max_val - state[3])
 
 
 # Create a directory for TensorBoard data
 # Setting up logging tools
-writer = SummaryWriter('runs/lunar_lander_experiment_' + datetime.now().strftime("%Y%m%d-%H%M%S"))
-csv_file = open('training_metrics.csv', 'w', newline='')
+writer = SummaryWriter('runs/pool_experiment_' + datetime.now().strftime("%Y%m%d-%H%M%S"))
+csv_file = open('training_metrics.csv', 'a', newline='')
 csv_writer = csv.writer(csv_file)
 csv_writer.writerow(['Episode', 'TotalReward'])
 
@@ -75,7 +128,7 @@ csv_writer.writerow(['Episode', 'TotalReward'])
 
 import os
 
-def save_checkpoint(actor, critic1, critic2, actor_optimizer, critic1_optimizer, critic2_optimizer, episode):
+def save_checkpoint(actor, critic, actor_optimizer, critic_optimizer, episode):
     save_path = 'checkpoints'  # Directory where you want to save your checkpoints
     os.makedirs(save_path, exist_ok=True)  # Ensure the directory exists
 
@@ -85,58 +138,36 @@ def save_checkpoint(actor, critic1, critic2, actor_optimizer, critic1_optimizer,
 
     # Save the checkpoint
     torch.save({
+        'episode': episode,
         'actor_state_dict': actor.state_dict(),
-        'critic1_state_dict': critic1.state_dict(),
-        'critic2_state_dict': critic2.state_dict(),
+        'critic_state_dict': critic.state_dict(),
         'actor_optimizer_state_dict': actor_optimizer.state_dict(),
-        'critic1_optimizer_state_dict': critic1_optimizer.state_dict(),
-        'critic2_optimizer_state_dict': critic2_optimizer.state_dict(),
+        'critic_optimizer_state_dict': critic_optimizer.state_dict()
     }, filepath)
 
     print(f"Checkpoint saved to {filepath}")
 
+def load_checkpoint(actor, critic, actor_optimizer, critic_optimizer, filename):
+    # Load the checkpoint
+    checkpoint = torch.load(filename)
 
+    episode = checkpoint['episode']
+
+    actor.load_state_dict(checkpoint['actor_state_dict'])
+    critic.load_state_dict(checkpoint['critic_state_dict'])
+    actor_optimizer.load_state_dict(checkpoint['actor_optimizer_state_dict'])
+    critic_optimizer.load_state_dict(checkpoint['critic_optimizer_state_dict'])
+
+    print(f"Checkpoint loaded from {filename}")
+    return episode
 #######
 
 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-print("Using {}".format(device))
+# device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+# print("Using {}".format(device))
 
 #If you see Using cuda then gpu is used
 ## Global variables
-
-
-state_dim = 4
-act_dim = 3
-
-#Limits the number of time steps per episode to avoid hovering 
-step_limit=600
-
-#Action in pool is: angle between 0 and 360, strength between 0 and 1
-action_limit = [13, 8, 1]
-
-gamma = 0.99
-
-#This helps with exploration vs eploitation
-"""alpha_max = 0.4
-alpha_min=0.01
-alpha=alpha_max
-
-learning_rate_max = 0.001
-learning_rate_min=0.0001
-learning_rate=learning_rate_max"""
-alpha=0.1
-learning_rate=0.001
-#Used for soft update of the target critics
-tau = 0.01
-
-epoch = 1000
-time_steps = epoch * 10
-test_episodes = 1
-initial_steps = 100
-buffer_size = 1000000
-batch_size = 256
-
 
 class Actor(nn.Module):
     def __init__(self, state_dim, action_dim, hidden_size=256):
@@ -146,47 +177,29 @@ class Actor(nn.Module):
         self.fc1 = nn.Linear(state_dim, hidden_size)
         self.fc2 = nn.Linear(hidden_size, hidden_size)
         self.mean_fc = nn.Linear(hidden_size, action_dim)
-        self.std_fc = nn.Linear(hidden_size, action_dim)
 
     def forward(self, x):
         x = F.relu(self.fc1(x))
         x = F.relu(self.fc2(x))
         
         #Use tanh for mean so it is between -1 and 1
-        mean = torch.tanh(self.mean_fc(x))
         
-        #Use softplus so the std is always positive
-        std = F.softplus(self.std_fc(x))
-        
-        #if torch.isnan(mean).any() or torch.isnan(std).any():
-            #print(f"NaN encountered in step {step_counter}")
-            #print(f"Mean: {mean}, Std: {std}")
-
-          # Make sure to define this globally
-        #if step_counter % 100 == 0:
-            #print(f"Step {step_counter} - Mean: {mean}, Std: {std}")
-        
-        
-        dist = Normal(mean, std)
-        
+       # action = torch.tanh(self.mean_fc(x))
        
-
-
-        #Sample an action from the estimated distribution
-        action = dist.rsample()
+        action_sigmoid = torch.tanh(self.mean_fc(x))
+       
         
-        #Compute the log pdf of the estimated distribution
-        log_prob = dist.log_prob(action).sum(axis=-1)
-
         #Make sure the action is in the action limit by transforming it with tanh(which is between -1 and 1)
         #and multiplying with the action_limit
         #!!! This assumes that the action is in between -action_limit and action_limit
-        #print(action)
-        print(action)
-        action_tanh = torch.tanh(0.002 * action)
-        #action_sigmoid[0] = action_limit[0] * action_sigmoid[0]
-        #action_sigmoid[1] = action_limit[1] * action_sigmoid[1]
-        return action_tanh, log_prob
+        
+        # action_sigmoid = torch.sigmoid(action)
+        
+        # action_sigmoid[0] = action_limit[0] * action_sigmoid[0]
+        # action_sigmoid[1] = action_limit[1] * action_sigmoid[1]
+
+        return action_sigmoid
+    # , log_prob
     
     def clip_gradients(self, clip_value):
         
@@ -243,7 +256,7 @@ class ReplayBuffer:
                      done=self.done_buf[idxs])
         return {k: torch.as_tensor(v, dtype=torch.float32) for k,v in batch.items()}
 
-def SAC():
+def DDPG():
     global step_counter
     #global alpha, learning_rate
     #Define replay buffer
@@ -251,126 +264,108 @@ def SAC():
     
     #Define actor and critics
     actor = Actor(state_dim, act_dim)#
-    critic1 = Critic(state_dim, act_dim)#
-    critic2 = Critic(state_dim, act_dim)#
+    critic = Critic(state_dim, act_dim)#
+    # critic2 = Critic(state_dim, act_dim)#
     #.to(device)
     #Define targets (for SAC only the critics have targets)
-    target_critic1 = deepcopy(critic1)#
-    target_critic2 = deepcopy(critic2)#
+    target_critic = deepcopy(critic)#
+    target_actor = deepcopy(actor)
+    # target_critic2 = deepcopy(critic2)#
     
     #Optimizers
-    policy_optimizer = torch.optim.Adam(actor.parameters(), lr=learning_rate)
-    critic1_optimizer = torch.optim.Adam(critic1.parameters(), lr=learning_rate)
-    critic2_optimizer = torch.optim.Adam(critic2.parameters(), lr=learning_rate)
+    actor_optimizer = torch.optim.Adam(actor.parameters(), lr=actor_lr)
+    critic_optimizer = torch.optim.Adam(critic.parameters(), lr=critic_lr)
+    # critic2_optimizer = torch.optim.Adam(critic2.parameters(), lr=learning_rate)
     
     def get_action(state):
-        action, _ = actor(torch.as_tensor(state, dtype=torch.float32))
-        action = action.detach().numpy()
-        action[0] = action_limit[0] * action[0]
-        action[1] = action_limit[1] * action[1]
-        action[2] = 1/(1 + np.exp(-action[2]))
-        return action
-
-    def critic_loss(state, action, reward, next_state, done):
-        Q1 = critic1(state, action)
-        Q2 = critic2(state, action)
-        
-        with torch.no_grad():
-            
-            next_action, log_prob = actor(next_state)
-
-            Q1_target = target_critic1(next_state, next_action)
-            Q2_target = target_critic2(next_state, next_action)
-            Q_target = torch.min(Q1_target, Q2_target)
-            
-            #Compute the target for the q functions
-            y = reward + gamma * (1 - done) * (Q_target - alpha * log_prob)
-
-        #The loss for each critic is the mean squared error between the actual and the new computed y
-        loss1 = ((Q1 - y)**2).mean()
-        loss2 = ((Q2 - y)**2).mean()
-        
-        return loss1, loss2
+        # action= actor(torch.as_tensor(state, dtype=torch.float32))
+        # action = action.detach().numpy()
+        # action[0] = action_limit[0] * action[0]
+        # action[1] = action_limit[1] * action[1]
+        # return action
+        action = actor(torch.as_tensor(state, dtype=torch.float32))
     
-    def policy_loss(state, action, reward, next_state, done):
+        # Add Gaussian noise to the mean action
+        noise = torch.randn_like(action) * noise_std
+        #noisy_action = torch.clamp(action + noise, -1, 1)  # Ensure actions are within [-1, 1]
+        print("hi")
+        #print(action)
+        noisy_action = action
         
-        next_action, log_prob = actor(state)
-        Q1 = critic1(state, next_action)
-        Q2 = critic2(state, next_action)
+
+        # Transform action[0] to be between 0 and 360
+        # noisy_action[0] = (noisy_action[0] + 1) * 180
         
-        #Get the lower Q value
-        Q = torch.min(Q1, Q2)
+        # Transform action[1] to be between 0 and 1
+        # noisy_action[1] = (noisy_action[1] + 1) / 2
+        noisy_action = noisy_action.detach().numpy()
+        noisy_action[0] = action_limit[0] * noisy_action[0]
+        noisy_action[1] = action_limit[1] * noisy_action[1]
+        noisy_action[2] = 1/(1 + np.exp(-noisy_action[2]))
 
-        #Compute the loss for gradient descent
-        loss = (alpha * log_prob-Q).mean()
-
-        return loss
+        
+        return noisy_action
     
     #This function is used to update the actor and the critics
     def step(state, action, reward, next_state, done):
         torch.autograd.set_detect_anomaly(True)
+
+        target_action = target_actor(next_state)
+        target_Q = target_critic(next_state, target_action)
+        target_Q = reward + (1 - done) * gamma * target_Q.detach()
+
+        current_Q = critic(state, action)
         
-        loss1, loss2 = critic_loss(state, action, reward, next_state, done)
-        
-        for p in critic2.parameters():
-            p.requires_grad = False
+        cricic_loss = F.mse_loss(current_Q, target_Q)
         
         #Update the first critic using its loss and gradient descent
-        critic1_optimizer.zero_grad()
-        loss1.backward()
-        critic1_optimizer.step()
+        critic_optimizer.zero_grad()
+        cricic_loss.backward()
+        critic_optimizer.step()
         
-        for p in critic1.parameters():
+        for p in critic.parameters():
             p.requires_grad = False
             
-        #Update the second critic using its loss and gradient descent
-        critic2_optimizer.zero_grad()
-        loss2.backward()
-        critic2_optimizer.step()
-        
-        
-        for p in critic2.parameters():
-            p.requires_grad = False
             
-        
         #Update the actor using its loss and gradient descent
-        policy_optimizer.zero_grad()
-        loss = policy_loss(state, action, reward, next_state, done)
-        loss.backward()
-        policy_optimizer.step()
+
+        actor_optimizer.zero_grad()
+        acotr_loss = -critic(state, actor(state)).mean()
+        acotr_loss.backward()
+        actor_optimizer.step()
         
-        actor.clip_gradients(1)
+        # actor.clip_gradients(1)
             
-        for p in critic1.parameters():
+        for p in critic.parameters():
             p.requires_grad = True
-        for p in critic2.parameters():
+        for p in actor.parameters():
             p.requires_grad = True
         
         #Update the target critics by taking their weights, multiplying by tau, and then adding (1-tau) * the weights of the respective critic 
         #Soft update by using tau
         with torch.no_grad():
-            for c1, c2, target_c1, target_c2 in zip(critic1.parameters(), critic2.parameters(), target_critic1.parameters(), target_critic2.parameters()):
-                target_c1.data.mul_(tau)
-                target_c1.data.add_((1 - tau) * c1.data)
-                target_c2.data.mul_(tau)
-                target_c2.data.add_((1 - tau) * c2.data)
+            for param, target_param in zip(actor.parameters(), target_actor.parameters()):
+                target_param.data.copy_(tau * param.data + (1 - tau) * target_param.data)
+
+            for param, target_param in zip(critic.parameters(), target_critic.parameters()):
+                target_param.data.copy_(tau * param.data + (1 - tau) * target_param.data)
+
     total_test_reward = []
 
     def send_action(s, action):
         send_instruction(s, action)
         next_state, reward, done = receive_state(s)
-        next_state = normalize_state(next_state)
         return next_state, reward, done
     
     def reset(s):
         reset_env(s)
         state, _, _ = receive_state(s)
-        state = normalize_state(state)
         return state
 
     def test_agent(s):
         mean_reward = []
         for j in range(test_episodes):
+            print(j)
             state, done = reset(s), False
             ep_len = 0
             tot_reward = 0
@@ -379,24 +374,15 @@ def SAC():
                 state, reward, done = send_action(s, action)
                 tot_reward += reward
                 ep_len += 1
-            print(j)
             mean_reward.append(tot_reward)
-        print("test")
-        print(np.sum(mean_reward)/test_episodes)
         total_test_reward.append(np.sum(mean_reward)/test_episodes)
     
     def sample_action():
         action = []
         for i in range(act_dim-1):
             action.append(np.random.uniform(-action_limit[i], action_limit[i]))
-        action.append(np.random.uniform(0, action_limit[act_dim -1]))
+        action.append(np.random.uniform(-0, action_limit[act_dim-1]))
         return np.asarray(action)
-    
-    def normalize_state(state):
-        #state[0:state_dim-2:4] = np.asarray(state[0:state_dim-2:4])/20
-        #state[1::4] = np.asarray(state[1::4])/10
-        #state[2::4] = np.asarray(state[2::4])/3
-        return state
 
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         total_rewards = []
@@ -408,6 +394,12 @@ def SAC():
         s.connect((host, port))
         print("Connected to the server.")
         state = reset(s)
+
+        if start_from_check_point:
+            filename = f"checkpoints/checkpoint_episode_{start_from_ep}.pth"  # Specify the path to your checkpoint file
+            episode = load_checkpoint(actor, critic, actor_optimizer, critic_optimizer, filename)
+
+
         for i in range(1,time_steps):
             if i%epoch == 0:
                 test_agent(s)
@@ -416,21 +408,28 @@ def SAC():
             if i < initial_steps:
                 #We want to have 'initial_steps' samples in the replay buffer before we start training, so we use random ones
                 action = sample_action()
+                # print("Action=", action)
             else:
+                    # if i%epoch == 0:
+                    #     print("testing...")
+                    #     test_agent(s)
+                    #     state = reset(s)
+                    # else:
                 action = get_action(state)
-                #print("Action=", action)
+                #print(action)
+            # print("Action=", action)
             #Take a step using the action
-            print(action)
-            next_state, reward, done = send_action(s, action)
             
-            #print("done")
-            #print(done)
+            print(i)
+
+            next_state, reward, done = send_action(s, action)
             
             step_counter+=1
             if step_counter >= step_limit:
                 done = True
                 reward=reward-50
-            print(i)
+                
+            # print(i)
 
             replay_buffer.store(state, action, reward, next_state, done)
 
@@ -440,18 +439,18 @@ def SAC():
             #Update the state
             state = next_state
             
-            #print(state)
-            
             if done:
                 #When done add total reward to a list and set to 0 again, then reset env
                 total_rewards.append(t_rew)
-                print(f"Episode finished with reward: {t_rew}")
+                print("=====================================================")
+                print(f"Episode {episode} finished with reward: {t_rew}")
                 print(reward)
                 #print("info", info['env'].lander_position[0])
                 writer.add_scalar('Total Reward', t_rew, episode)
                 csv_writer.writerow([episode + 1, t_rew])
                 csv_file.flush()
                 print("step_counter=", step_counter)
+                print("curreny time steps=", i)
                 #print("State=", state)
                 step_counter=0
 
@@ -459,18 +458,24 @@ def SAC():
                 t_rew = 0
                 episode+=1
                 if episode % 50 == 0:  # Save every 50 episodes
-                    save_checkpoint(actor, critic1, critic2, policy_optimizer, critic1_optimizer, critic2_optimizer, f'checkpoint_episode_{episode}.pth')
+                    save_checkpoint(actor, critic, actor_optimizer, critic_optimizer, episode)
                 state = reset(s)
-
+                print(state)
                 state = torch.as_tensor(state, dtype=torch.float32)#
             if i >= initial_steps:
                 #If we are training, then take a minibatch and call function step
                 batch = replay_buffer.sample_batch(batch_size)
                 #batch = {k: v.to(device) for k, v in batch.items()} #
                 step(batch['state'], batch['action'], batch['reward'], batch['next_state'], batch['done'])
+
+        # finish training
+        save_checkpoint(actor, critic, actor_optimizer, critic_optimizer, episode)
     csv_file.close()
     writer.close()
     print(total_rewards)
+
+    # print("testing...")
+    # test_agent(s)
     
     """
     plt.plot(total_rewards)
@@ -520,4 +525,4 @@ for j in range(time_steps):
     
 
 
-SAC() 
+DDPG() 
