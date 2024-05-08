@@ -25,8 +25,21 @@ public class MoveWhiteBall : MonoBehaviour
         Rigidbody2D rb = GetComponent<Rigidbody2D>();
         rb.velocity = Vector2.zero;
         rb.angularVelocity = 0f;
+        //transform.position = new Vector2(Random.Range(-9.8f, 9.8f), Random.Range(-4.8f, 4.8f));
         transform.position = whiteBallSpawnPosition;
     }
+
+    /*
+    public void Reset(){
+        //Debug.Log("Reset White Ball");
+        Rigidbody2D rb = GetComponent<Rigidbody2D>();
+        rb.velocity = Vector2.zero;
+        rb.angularVelocity = 0f;
+        transform.position = whiteBallSpawnPosition;
+    }
+    */
+
+
     public static Vector2 AngleToDirection(float angle)
     {
         // Convert angle from degrees to radians
@@ -52,7 +65,7 @@ public class MoveWhiteBall : MonoBehaviour
                     env.UpdateReward(env.rewardPerHittingCorrectBall);
                 }
                 else{
-                    //env.UpdateReward(env.rewardPerWrongBall);
+                    env.UpdateReward(env.rewardPerHittingWrongBall);
                 }
                 firstHit = false;
             }
@@ -62,7 +75,7 @@ public class MoveWhiteBall : MonoBehaviour
     public void CheckIfItHitReward(){
         //if it did not hit anything bad
         if(firstHit){
-            env.UpdateReward(env.rewardPerNotHittingBall);
+            //env.UpdateReward(env.rewardPerNotHittingBall);
         }
     }
     

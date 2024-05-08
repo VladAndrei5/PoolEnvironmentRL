@@ -23,7 +23,7 @@ public class Environment : MonoBehaviour
     private bool stationaryBalls = true;
 
     public int currentPlayer = 0;
-    public int reward;
+    public float reward;
     public int currentState;
 
     public bool gameOver = false;
@@ -35,15 +35,16 @@ public class Environment : MonoBehaviour
     public float[] state;
     public int currentPlayerColour;
 
-    public int rewardPerWrongBall = -10;
-    public int rewardPerCorrectBall = 10;
-    public int rewardPerBlackBall = -200;
-    public int rewardPerWin = 100;
-    public int rewardPerLose = -100;
-    public int rewardPerSkipTurn = -2;
-    public int rewardPerHittingCorrectBall = 3;
-    public int rewardPerHittingWrongBall = -3;
-    public int rewardPerNotHittingBall = -2;
+    public float rewardPerWrongBall = -10f;
+    public float rewardPerCorrectBall = 10f;
+    public float rewardPerBlackBall = -200f;
+    public float rewardPerWin = 100f;
+    public float rewardPerLose = -100f;
+    public float rewardPerSkipTurn = -2f;
+    public float rewardPerHittingCorrectBall = 3f;
+    public float rewardPerHittingWrongBall = -3f;
+    public float rewardPerNotHittingBall = -2f;
+    public float rewardPerTimeStep = -1f;
 
     public bool updatedState;
 
@@ -72,7 +73,7 @@ public class Environment : MonoBehaviour
         changePlayer = false;
         playerNumbText.text = "1";
         playerNumbText.color = Color.red;
-        reward = 0;
+        ResetEnv();
         SetGameSpeed(gameSpeed);
         UpdateState();
     }
@@ -80,8 +81,8 @@ public class Environment : MonoBehaviour
     public IEnumerator Step((float, float, float) action){
         //Debug.Log(action);
         updatedState = false;
-        reward = 0;
-        UpdateReward(-2);
+        ResetReward();
+        UpdateReward(rewardPerTimeStep);
 
         stationaryBalls = false;
         float randomAngleAdd = 0f;
@@ -156,17 +157,18 @@ public class Environment : MonoBehaviour
 
             stateList.Add(ballScript.GetPositionX());
             stateList.Add(ballScript.GetPositionY());
-            stateList.Add((float)ballScript.GetBallColour());
+            //stateList.Add((float)ballScript.GetBallColour());
             stateList.Add((float)ballScript.GetBallActive());
 
 
         }
-        stateList.Add(22f);
-        stateList.Add(12f);
+        //stateList.Add(22f);
+        //stateList.Add(12f);
 
 
 
 
+        /*
         stateList.Add(-11f);
         stateList.Add(-6f);
 
@@ -184,7 +186,7 @@ public class Environment : MonoBehaviour
 
         stateList.Add(11f);
         stateList.Add(6f);
-
+        */
 
 
         //stateList.Add(currentPlayerColour);
@@ -250,12 +252,12 @@ public class Environment : MonoBehaviour
         return didWin;
     }
 
-    public void UpdateReward(int newReward){
+    public void UpdateReward(float newReward){
         reward = reward + newReward;
     }
 
     public void ResetReward(){
-        reward = 0;
+        reward = 0f;
     }
 
     // Method to process data received from the Server GameObject
@@ -266,10 +268,10 @@ public class Environment : MonoBehaviour
     }
 
     public void ResetEnv(){
-        //Debug.Log("Resetting Enviornment");
+        Debug.Log("Resetting Enviornment");
         newActionRec = false;
         updatedState = false;
-        reward = 0;
+        ResetReward();
         gameOver = false;
         foreach (GameObject ball in ballsArray){
             BallScript ballScript = ball.GetComponent<BallScript>();
@@ -294,7 +296,7 @@ public class Environment : MonoBehaviour
         return gameOver;
     }
 
-    public int GetReward()
+    public float GetReward()
     {
         return reward;
     }
@@ -305,7 +307,7 @@ public class Environment : MonoBehaviour
     }
 
     public void TakeAction((float, float, float) action){
-        //Debug.Log(action);
+        Debug.Log(action);
         newActionRec = true;
         //Debug.Log(action);
         updatedState = false;

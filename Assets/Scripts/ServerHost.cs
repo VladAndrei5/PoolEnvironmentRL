@@ -3,6 +3,9 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 using UnityEngine;
 
 public class ServerHost : MonoBehaviour
@@ -16,9 +19,9 @@ public class ServerHost : MonoBehaviour
     private void Start()
     {
         resetTheLevel = false;
-        server = new TcpListener(IPAddress.Parse("127.0.0.1"), 4444);
+        server = new TcpListener(IPAddress.Parse("127.0.0.1"), 8888);
         server.Start();
-        Debug.Log("Server started. Waiting for a connection...");
+        //Debug.Log("Server started. Waiting for a connection...");
 
         clientThread = new Thread(new ThreadStart(ListenForClients));
         clientThread.Start();
@@ -28,21 +31,17 @@ public class ServerHost : MonoBehaviour
         Debug.Log("sendstateback");
         // Get the updated state, reward, and terminal flag
         float[] state = env.GetState();
-        int reward = env.GetReward();
+        float reward = env.GetReward();
         bool terminal = env.IsTerminal();
 
         // Construct response
         string response = $"{string.Join(",", state)},{reward},{terminal}";
         byte[] responseBytes = Encoding.ASCII.GetBytes(response);
-
-        //Debug.Log("Server sent back " + state + " " + reward + " " + terminal);
         stream.Write(responseBytes, 0, responseBytes.Length);
-
-        //Debug.Log($"Sent state: {response}");
     }
 
     private void SendWaitCommand(NetworkStream stream){
-        Debug.Log("wait");
+       // Debug.Log("wait");
         byte[] responseBytes = Encoding.ASCII.GetBytes("WAIT");
         stream.Write(responseBytes, 0, responseBytes.Length);
         //Debug.Log("waiting");
@@ -51,11 +50,11 @@ public class ServerHost : MonoBehaviour
     private void ListenForClients()
     {
         client = server.AcceptTcpClient();
-        Debug.Log("Client connected!");
+       // Debug.Log("Client connected!");
         while (true)
         {   
             while(resetTheLevel){
-                Thread.Sleep(25);
+                Thread.Sleep(20);
                 //Debug.Log("sleep1");
             }
             try{
@@ -66,7 +65,7 @@ public class ServerHost : MonoBehaviour
                 {
                     //Debug.Log("hi");
                     SendWaitCommand(stream);
-                    Thread.Sleep(25);
+                    Thread.Sleep(20);
                 }
 
                 SendStateBack(stream);
@@ -82,12 +81,12 @@ public class ServerHost : MonoBehaviour
                     while (resetTheLevel)
                     {
                         SendWaitCommand(stream);
-                        Thread.Sleep(25);
+                        Thread.Sleep(20);
                     }
                     while (!env.IsStateUpdated())
                     {
                         SendWaitCommand(stream);
-                        Thread.Sleep(25);
+                        Thread.Sleep(20);
                     }
 
                     SendStateBack(stream);
@@ -108,7 +107,7 @@ public class ServerHost : MonoBehaviour
                     while (!env.IsStateUpdated())
                     {
                         SendWaitCommand(stream);
-                        Thread.Sleep(25);
+                        Thread.Sleep(20);
                     }
 
                     SendStateBack(stream);
@@ -119,11 +118,19 @@ public class ServerHost : MonoBehaviour
                         //resetTheLevel = true;
                     //}
                 }
+                else if (dataReceived.StartsWith("DISCONNECT"))
+                {
+                    Debug.Log("Stop");
+                    StopPlaying();
+                    server.Stop();
+                    StopPlaying();
+                    server.Stop();
+                }
                 else{
                     while (!env.IsStateUpdated())
                     {
                         SendWaitCommand(stream);
-                        Thread.Sleep(25);
+                        Thread.Sleep(20);
                     }
                 }
                 
@@ -137,7 +144,16 @@ public class ServerHost : MonoBehaviour
         }
     }
 
-
+    public void StopPlaying()
+    {
+        Debug.Log("stop");
+        #if UNITY_EDITOR
+        if(EditorApplication.isPlaying)
+        {
+        UnityEditor.EditorApplication.isPlaying = false;
+        }
+        #endif
+    }
 
     private void OnApplicationQuit()
     {

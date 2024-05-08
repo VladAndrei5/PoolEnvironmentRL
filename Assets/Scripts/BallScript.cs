@@ -21,6 +21,19 @@ public class BallScript : MonoBehaviour
     }
 
     public void ResetBall(){
+        transform.position = new Vector2(Random.Range(-9.8f, 9.8f), Random.Range(-4.8f, 4.8f));
+        isActive = true;
+        isMoving = false;
+        Rigidbody2D rb = GetComponent<Rigidbody2D>();
+        rb.velocity = Vector2.zero;
+        rb.angularVelocity = 0f;
+        GetComponent<SpriteRenderer>().enabled = true;
+        GetComponent<CircleCollider2D>().enabled = true;
+        GetComponent<Rigidbody2D>().simulated = true;
+    }
+
+    /*
+    public void ResetBall(){
         transform.position = new Vector3(originalPosition.x, originalPosition.y, transform.position.z);
         isActive = true;
         isMoving = false;
@@ -31,11 +44,19 @@ public class BallScript : MonoBehaviour
         GetComponent<CircleCollider2D>().enabled = true;
         GetComponent<Rigidbody2D>().simulated = true;
     }
+    */
+
     private void DisableBall(){
         isActive = false;
+        Rigidbody2D rb = GetComponent<Rigidbody2D>();
+        rb.velocity = Vector2.zero;
+        rb.angularVelocity = 0f;
         GetComponent<SpriteRenderer>().enabled = false;
         GetComponent<CircleCollider2D>().enabled = false;
         GetComponent<Rigidbody2D>().simulated = false;
+
+        //DONT FORGET MAYBE TO REMOVE
+        //transform.position = new Vector3(0f, 100f, 0f);
     }
 
     private void OnTriggerEnter2D(Collider2D other)
@@ -57,13 +78,13 @@ public class BallScript : MonoBehaviour
                 else if(env.currentPlayerColour == ballColour){
                     env.UpdateReward(env.rewardPerCorrectBall);
                     DisableBall();
-                    //env.CheckIfRedWon();
+                    env.CheckIfRedWon();
                     env.CheckIfYellowWon();
                 }
                 else if(env.currentPlayerColour != ballColour){
                     env.UpdateReward(env.rewardPerWrongBall);
                     DisableBall();
-                    //env.CheckIfRedWon();
+                    env.CheckIfRedWon();
                     env.CheckIfYellowWon();
                     //env.changePlayer = true;
                 }
