@@ -33,6 +33,9 @@ public class BallScript : MonoBehaviour
     }
     private void DisableBall(){
         isActive = false;
+        Rigidbody2D rb = GetComponent<Rigidbody2D>();
+        rb.velocity = Vector2.zero;
+        rb.angularVelocity = 0f;
         GetComponent<SpriteRenderer>().enabled = false;
         GetComponent<CircleCollider2D>().enabled = false;
         GetComponent<Rigidbody2D>().simulated = false;
@@ -49,6 +52,7 @@ public class BallScript : MonoBehaviour
                 if( ballColour == 2){
                     env.UpdateReward(env.rewardPerBlackBall);
                     env.gameOver = true;
+                    DisableBall();
                 }
                 else if(ballColour == 3){
                     env.UpdateReward(env.rewardPerSkipTurn);

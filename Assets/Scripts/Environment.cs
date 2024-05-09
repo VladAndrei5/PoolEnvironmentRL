@@ -157,11 +157,12 @@ public class Environment : MonoBehaviour
 
             stateList.Add(ballScript.GetPositionX());
             stateList.Add(ballScript.GetPositionY());
-            stateList.Add((float)ballScript.GetBallColour());
+            //stateList.Add((float)ballScript.GetBallColour());
             stateList.Add((float)ballScript.GetBallActive());
 
 
         }
+        /*
         stateList.Add(22f);
         stateList.Add(12f);
 
@@ -185,6 +186,7 @@ public class Environment : MonoBehaviour
 
         stateList.Add(11f);
         stateList.Add(6f);
+        */
 
 
 
@@ -295,7 +297,7 @@ public class Environment : MonoBehaviour
         return gameOver;
     }
 
-    public int GetReward()
+    public float GetReward()
     {
         return reward;
     }
