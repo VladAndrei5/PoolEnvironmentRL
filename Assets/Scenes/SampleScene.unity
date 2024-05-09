@@ -2604,9 +2604,6 @@ MonoBehaviour:
   - {fileID: 1073322383}
   - {fileID: 1490307042}
   - {fileID: 1169489786}
-  - {fileID: 1779961565}
-  - {fileID: 277458731}
-  - {fileID: 714050879}
   playerNumbText: {fileID: 254384068}
   state: []
   currentPlayerColour: 1
