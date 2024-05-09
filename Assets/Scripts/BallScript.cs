@@ -21,7 +21,8 @@ public class BallScript : MonoBehaviour
     }
 
     public void ResetBall(){
-        transform.position = new Vector3(originalPosition.x, originalPosition.y, transform.position.z);
+        //transform.position = new Vector3(originalPosition.x, originalPosition.y, transform.position.z);
+        transform.position = new Vector3(Random.Range(-9f, 9f), Random.Range(-7f, 7f), transform.position.z);
         isActive = true;
         isMoving = false;
         Rigidbody2D rb = GetComponent<Rigidbody2D>();

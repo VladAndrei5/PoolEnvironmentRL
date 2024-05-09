@@ -2595,7 +2595,7 @@ MonoBehaviour:
   serverhost: {fileID: 868791561}
   whiteBallControls: {fileID: 77666568}
   angle: 1
-  maxVelocity: 35
+  maxVelocity: 30
   gameSpeed: 100
   currentPlayer: 0
   reward: 0
