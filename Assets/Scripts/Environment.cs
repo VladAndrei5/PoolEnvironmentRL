@@ -23,7 +23,7 @@ public class Environment : MonoBehaviour
     private bool stationaryBalls = true;
 
     public int currentPlayer = 0;
-    public int reward;
+    public float reward;
     public int currentState;
 
     public bool gameOver = false;
@@ -35,15 +35,16 @@ public class Environment : MonoBehaviour
     public float[] state;
     public int currentPlayerColour;
 
-    public int rewardPerWrongBall = -10;
-    public int rewardPerCorrectBall = 10;
-    public int rewardPerBlackBall = -200;
-    public int rewardPerWin = 100;
-    public int rewardPerLose = -100;
-    public int rewardPerSkipTurn = -2;
-    public int rewardPerHittingCorrectBall = 3;
-    public int rewardPerHittingWrongBall = -3;
-    public int rewardPerNotHittingBall = -2;
+    public float rewardPerWrongBall = -10f;
+    public float rewardPerCorrectBall = 10f;
+    public float rewardPerBlackBall = -200f;
+    public float rewardPerWin = 100f;
+    public float rewardPerLose = -100f;
+    public float rewardPerSkipTurn = -2f;
+    public float rewardPerHittingCorrectBall = 3f;
+    public float rewardPerHittingWrongBall = -3f;
+    public float rewardPerNotHittingBall = -2;
+    public float rewardPerTimeStep = -3f;
 
     public bool updatedState;
 
@@ -72,16 +73,16 @@ public class Environment : MonoBehaviour
         changePlayer = false;
         playerNumbText.text = "1";
         playerNumbText.color = Color.red;
-        reward = 0;
+        ResetReward();
         SetGameSpeed(gameSpeed);
         UpdateState();
     }
 
     public IEnumerator Step((float, float, float) action){
-        //Debug.Log(action);
+        Debug.Log(action);
         updatedState = false;
-        reward = 0;
-        UpdateReward(-2);
+        ResetReward();
+        UpdateReward(rewardPerTimeStep);
 
         stationaryBalls = false;
         float randomAngleAdd = 0f;
@@ -250,7 +251,7 @@ public class Environment : MonoBehaviour
         return didWin;
     }
 
-    public void UpdateReward(int newReward){
+    public void UpdateReward(float newReward){
         reward = reward + newReward;
     }
 
