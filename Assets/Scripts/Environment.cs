@@ -89,7 +89,7 @@ public class Environment : MonoBehaviour
     }
 
     public IEnumerator Step((float, float, float) action){
-        //Debug.Log(action);
+        Debug.Log(action);
         updatedState = false;
         ResetReward();
         UpdateReward(rewardPerTimeStep);

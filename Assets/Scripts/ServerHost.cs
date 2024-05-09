@@ -16,8 +16,11 @@ public class ServerHost : MonoBehaviour
 
     public Environment env;
     public bool resetTheLevel = false;
+
+    public bool isItPlaying = true;
     private void Start()
     {
+        isItPlaying = true;
         resetTheLevel = false;
         server = new TcpListener(IPAddress.Parse("127.0.0.1"), 8888);
         server.Start();
@@ -120,11 +123,7 @@ public class ServerHost : MonoBehaviour
                 }
                 else if (dataReceived.StartsWith("DISCONNECT"))
                 {
-                    Debug.Log("Stop");
-                    StopPlaying();
-                    server.Stop();
-                    StopPlaying();
-                    server.Stop();
+                    isItPlaying = false;
                 }
                 else{
                     while (!env.IsStateUpdated())
@@ -139,6 +138,7 @@ public class ServerHost : MonoBehaviour
             {
                 // Catching any exception that occurs
                 Debug.LogError("An error occurred: " + e.Message);
+                isItPlaying = false;
                 server.Stop();
             }
         }
@@ -148,11 +148,14 @@ public class ServerHost : MonoBehaviour
     {
         Debug.Log("stop");
         #if UNITY_EDITOR
-        if(EditorApplication.isPlaying)
-        {
-        UnityEditor.EditorApplication.isPlaying = false;
-        }
+        EditorApplication.ExitPlaymode();
         #endif
+    }
+
+    void Update(){
+        if(!isItPlaying){
+            StopPlaying();
+        }
     }
 
     private void OnApplicationQuit()

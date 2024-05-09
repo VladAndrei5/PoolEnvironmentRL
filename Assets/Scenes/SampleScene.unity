@@ -890,11 +890,11 @@ MonoBehaviour:
   - {fileID: 77666563}
   playerNumbText: {fileID: 254384068}
   state: []
-  rewardPerWhiteBall: 100
-  rewardPerTimeStep: -1
+  rewardPerWhiteBall: 80
+  rewardPerTimeStep: -2
   hole: {fileID: 1162736982}
   whiteBall: {fileID: 77666563}
-  maxDistance: 10
+  maxDistance: 4
   rewardPerProximity: 0.5
   updatedState: 0
 --- !u!4 &807302727
@@ -1048,6 +1048,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   env: {fileID: 807302726}
   resetTheLevel: 0
+  isItPlaying: 1
 --- !u!4 &868791562
 Transform:
   m_ObjectHideFlags: 0
@@ -1352,7 +1353,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!61 &2046768549
 BoxCollider2D:
   m_ObjectHideFlags: 0

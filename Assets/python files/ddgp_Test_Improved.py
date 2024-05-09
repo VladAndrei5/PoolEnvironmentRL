@@ -72,7 +72,6 @@ class DDPG:
         #print(f"Sent instruction: {instruction}")
         
     def close_server(self, s):
-        self.check_wait(s)
         for i in range(200):
             s.sendall("DISCONNECT".encode())
         
@@ -92,7 +91,15 @@ class DDPG:
         return state  
     
     
-
+    def save_model(self):
+        torch.save(self.actor.state_dict(), 'actor_checkpoint.pth')
+        torch.save(self.critic.state_dict(), 'critic_checkpoint.pth')
+        print("Model saved")
+        
+    def load_model(self):
+        self.actor.load_state_dict(torch.load('actor_checkpoint.pth'))
+        self.critic.load_state_dict(torch.load('critic_checkpoint.pth'))
+        print("Model loaded")    
     
     def __init__(self, state_dim, action_dim, actor_lr, critic_lr, gamma, tau, alpha):
         self.actor = Actor(state_dim, action_dim)
@@ -179,6 +186,9 @@ class DDPG:
         self.update_target_networks(self.alpha)
 
     def train(self, num_episodes, max_steps, test_interval, num_test_episodes):
+        if load_old_model:
+            self.load_model()
+            
         episode_rewards = []
         test_rewards = []
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
@@ -190,6 +200,9 @@ class DDPG:
             for episode in range(num_episodes):
                 state = self.reset(s)
                 episode_reward = 0
+                
+                if (episode + 1) % save_interval == 0:
+                    self.save_model()
                 
                 for step in range(max_steps):
                     action = self.select_action(state, episode)
@@ -211,13 +224,10 @@ class DDPG:
                     test_reward = self.test(s, num_test_episodes, max_steps)
                     test_rewards.append(test_reward)
                     
-            self.plot_results(episode_rewards, test_rewards, test_interval, num_test_episodes)        
             self.close_server(s)
+            s.close()
+            self.plot_results(episode_rewards, test_rewards, test_interval, num_test_episodes)   
             
-
-            
-            
-
     def test(self, s, num_episodes, max_steps):
         episode_rewards = []
         
@@ -263,14 +273,14 @@ class DDPG:
         
         plt.tight_layout()
         plt.savefig('ddpg_results.png')
-        plt.show()
+        #plt.show()
             
             
 no_balls = 1
 state_per_ball = 2
 additional_states = 0
 
-
+save_interval = 50  # Save the model every n episodes
 state_dim = 4  # Dimension of the state space
 action_dim = 3  # Dimension of the action space
 actor_lr = 1e-4  # Learning rate for the actor network
@@ -278,10 +288,12 @@ critic_lr = 1e-3  # Learning rate for the critic network
 gamma = 0.99  # Discount factor
 tau = 0.005  # Soft update factor for target networks
 alpha = 0.001  # Added alpha parameter for soft update
-num_episodes = 40  # Number of training episodes
+num_episodes = 2  # Number of training episodes
 max_steps = 150  # Maximum number of steps per episode
-test_interval = 5  # Number of episodes between each test
-num_test_episodes = 2  # Number of episodes to run during each test
+test_interval = 2  # Number of episodes between each test
+num_test_episodes = 1  # Number of episodes to run during each test
+load_old_model = False # Loads existing
+
 
 action_limit = [11, 6, 1]
 
