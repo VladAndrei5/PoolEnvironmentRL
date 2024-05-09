@@ -293,7 +293,7 @@ state_per_ball = 2
 additional_states = 0
 
 save_interval = 100  # Save the model every n episodes
-state_dim = 4  # Dimension of the state space
+state_dim = 16  # Dimension of the state space
 action_dim = 3  # Dimension of the action space
 actor_lr = 0.2e-4  # Learning rate for the actor network
 critic_lr = 0.2e-3  # Learning rate for the critic network
@@ -301,9 +301,9 @@ gamma = 0.99  # Discount factor
 tau = 0.03  # Soft update factor for target networks
 alpha = 0.003  # Added alpha parameter for soft update
 num_episodes = 1000  # Number of training episodes
-max_steps = 60  # Maximum number of steps per episode
-test_interval = 200  # Number of episodes between each test
-num_test_episodes = 1  # Number of episodes to run during each test
+max_steps = 65  # Maximum number of steps per episode
+test_interval = 100  # Number of episodes between each test
+num_test_episodes = 2  # Number of episodes to run during each test
 load_old_model = False # Loads existing
 
 

@@ -315,9 +315,6 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 1073322387}
-  - {fileID: 1490307046}
-  - {fileID: 1169489790}
   - {fileID: 1779961569}
   - {fileID: 277458735}
   - {fileID: 714050883}
@@ -2614,7 +2611,7 @@ MonoBehaviour:
   state: []
   currentPlayerColour: 1
   rewardPerWrongBall: -5
-  rewardPerCorrectBall: 10
+  rewardPerCorrectBall: 14
   rewardPerBlackBall: -200
   rewardPerWin: 50
   rewardPerLose: -50
@@ -3231,11 +3228,11 @@ Transform:
   m_GameObject: {fileID: 1073322383}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 4.9, y: 0, z: 0}
   m_LocalScale: {x: 0.56, y: 0.56, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 51174970}
+  m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1073322388
 MonoBehaviour:
@@ -3524,11 +3521,11 @@ Transform:
   m_GameObject: {fileID: 1169489786}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.49, y: -0.29, z: 0}
+  m_LocalPosition: {x: 5.3900003, y: -0.29, z: 0}
   m_LocalScale: {x: 0.56, y: 0.56, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 51174970}
+  m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1169489791
 MonoBehaviour:
@@ -4306,11 +4303,11 @@ Transform:
   m_GameObject: {fileID: 1490307042}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.49, y: 0.29, z: 0}
+  m_LocalPosition: {x: 5.3900003, y: 0.29, z: 0}
   m_LocalScale: {x: 0.56, y: 0.56, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 51174970}
+  m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1490307047
 MonoBehaviour:
@@ -4893,6 +4890,9 @@ SceneRoots:
   - {fileID: 712053106}
   - {fileID: 850779649}
   - {fileID: 77666565}
+  - {fileID: 1073322387}
+  - {fileID: 1490307046}
+  - {fileID: 1169489790}
   - {fileID: 51174970}
   - {fileID: 1019660003}
   - {fileID: 807302727}

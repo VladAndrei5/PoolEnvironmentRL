@@ -157,7 +157,7 @@ public class Environment : MonoBehaviour
 
             stateList.Add(ballScript.GetPositionX());
             stateList.Add(ballScript.GetPositionY());
-            //stateList.Add((float)ballScript.GetBallColour());
+            stateList.Add((float)ballScript.GetBallColour());
             stateList.Add((float)ballScript.GetBallActive());
 
 
