@@ -881,7 +881,7 @@ MonoBehaviour:
   serverhost: {fileID: 868791561}
   whiteBallControls: {fileID: 77666568}
   angle: 1
-  maxVelocity: 20
+  maxVelocity: 25
   gameSpeed: 100
   reward: 0
   currentState: 0
@@ -894,8 +894,8 @@ MonoBehaviour:
   rewardPerTimeStep: -2
   hole: {fileID: 1162736982}
   whiteBall: {fileID: 77666563}
-  maxDistance: 4
-  rewardPerProximity: 0.5
+  maxDistance: 5
+  rewardPerProximity: 1
   updatedState: 0
 --- !u!4 &807302727
 Transform:
@@ -1201,7 +1201,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!212 &1189481406
 SpriteRenderer:
   m_ObjectHideFlags: 0

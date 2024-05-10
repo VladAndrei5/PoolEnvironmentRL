@@ -71,6 +71,7 @@ public class Environment : MonoBehaviour
         {
             SetGameSpeed(gameSpeed);
             previousGameSpeed = gameSpeed;
+
         }
     }
 
@@ -201,6 +202,8 @@ public class Environment : MonoBehaviour
     private void SetGameSpeed(float speed){
         //Debug.Log(speed);
         Time.timeScale = speed;
+        float fdt = 0.02f;
+        Time.fixedDeltaTime = fdt * Time.timeScale;
     }
 
     public bool IsTerminal()
